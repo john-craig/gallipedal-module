@@ -11,7 +11,7 @@
 
     nixosModules = {
       gallipedal = (import ./. inputs);
-    }
+    };
 
   };
 }
