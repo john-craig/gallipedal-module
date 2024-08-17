@@ -4,10 +4,10 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
 
-    services-library.url = "git+https://gitea.chiliahedron.wtf/chiliahedron/services-library";
+    gallipedal-library.url = "git+https://gitea.chiliahedron.wtf/chiliahedron/gallipedal-library";
   };
 
-  outputs = { self, services-library, nixpkgs }@inputs: {
+  outputs = { self, gallipedal-library, nixpkgs }@inputs: {
 
     nixosModules = {
       gallipedal = (import ./. inputs);

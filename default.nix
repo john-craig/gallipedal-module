@@ -1,4 +1,4 @@
- { services-library, ... }: 
+ { gallipedal-library, ... }: 
  { pkgs, lib, config, ... }: 
 let
   internalProxyRules = "HeadersRegexp(`X-Real-Ip`, `(^192\.168\.[0-9]+\.[0-9]+)|(^100\.127\.79\.104)`)";
@@ -6,7 +6,7 @@ let
   proxyTLSResolver = "chiliahedron-resolver";
   
   shLib = import ./lib/default.nix;
-  servicesLibrary = services-library.default;
+  servicesLibrary = gallipedal-library.default;
 in {
   options.services.gallipedal = {
     enable = lib.mkEnableOption "Self-hosted Services";

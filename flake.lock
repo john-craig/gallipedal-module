@@ -1,5 +1,20 @@
 {
   "nodes": {
+    "gallipedal-library": {
+      "locked": {
+        "lastModified": 1723857359,
+        "narHash": "sha256-A9NgyBiNZYiFg3oI4r9AE6jKXVfF6TCKJw2mbLyLF/c=",
+        "ref": "refs/heads/main",
+        "rev": "780ebaff53c68612628151b35ae7e7d9b92f8b1b",
+        "revCount": 11,
+        "type": "git",
+        "url": "https://gitea.chiliahedron.wtf/chiliahedron/gallipedal-library"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://gitea.chiliahedron.wtf/chiliahedron/gallipedal-library"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1723637854,
@@ -18,23 +33,8 @@
     },
     "root": {
       "inputs": {
-        "nixpkgs": "nixpkgs",
-        "services-library": "services-library"
-      }
-    },
-    "services-library": {
-      "locked": {
-        "lastModified": 1723857359,
-        "narHash": "sha256-A9NgyBiNZYiFg3oI4r9AE6jKXVfF6TCKJw2mbLyLF/c=",
-        "ref": "refs/heads/main",
-        "rev": "780ebaff53c68612628151b35ae7e7d9b92f8b1b",
-        "revCount": 11,
-        "type": "git",
-        "url": "https://gitea.chiliahedron.wtf/chiliahedron/services-library"
-      },
-      "original": {
-        "type": "git",
-        "url": "https://gitea.chiliahedron.wtf/chiliahedron/services-library"
+        "gallipedal-library": "gallipedal-library",
+        "nixpkgs": "nixpkgs"
       }
     }
   },
