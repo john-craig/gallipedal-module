@@ -24,11 +24,11 @@
     },
     "services-library": {
       "locked": {
-        "lastModified": 1723371292,
-        "narHash": "sha256-c8sveILXhUKz8sKbTT7mloDpI2aX9oueRmcHenANey8=",
+        "lastModified": 1723857359,
+        "narHash": "sha256-A9NgyBiNZYiFg3oI4r9AE6jKXVfF6TCKJw2mbLyLF/c=",
         "ref": "refs/heads/main",
-        "rev": "2c07552ae3581134b5f05c750ab600b04c8ceae9",
-        "revCount": 10,
+        "rev": "780ebaff53c68612628151b35ae7e7d9b92f8b1b",
+        "revCount": 11,
         "type": "git",
         "url": "https://gitea.chiliahedron.wtf/chiliahedron/services-library"
       },
