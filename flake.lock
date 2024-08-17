@@ -1,0 +1,43 @@
+{
+  "nodes": {
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1723637854,
+        "narHash": "sha256-med8+5DSWa2UnOqtdICndjDAEjxr5D7zaIiK4pn0Q7c=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "c3aa7b8938b17aebd2deecf7be0636000d62a2b9",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "nixpkgs": "nixpkgs",
+        "services-library": "services-library"
+      }
+    },
+    "services-library": {
+      "locked": {
+        "lastModified": 1723371292,
+        "narHash": "sha256-c8sveILXhUKz8sKbTT7mloDpI2aX9oueRmcHenANey8=",
+        "ref": "refs/heads/main",
+        "rev": "2c07552ae3581134b5f05c750ab600b04c8ceae9",
+        "revCount": 10,
+        "type": "git",
+        "url": "https://gitea.chiliahedron.wtf/chiliahedron/services-library"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://gitea.chiliahedron.wtf/chiliahedron/services-library"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}
