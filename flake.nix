@@ -7,7 +7,7 @@
     services-library.url = "git+https://gitea.chiliahedron.wtf/chiliahedron/services-library";
   };
 
-  outputs = { self, services-library, nixpkgs }: {
+  outputs = { self, services-library, nixpkgs }@inputs: {
 
     nixosModules = {
       gallipedal = (import ./. inputs);
