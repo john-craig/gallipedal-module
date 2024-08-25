@@ -278,7 +278,8 @@ in {
     systemd.services = 
       # Define mounts for each container
       ((reduceContainers (acc: servName: servDef: conName: conDef: (
-        acc // {
+        acc // lib.attrsets.optionalAttrs 
+        (builtins.hasAttr "volumes" conDef) {
           "podman-mount-${servName}-${conName}" = {
             serviceConfig = {
               Type = "oneshot";
