@@ -2,11 +2,11 @@
   "nodes": {
     "gallipedal-library": {
       "locked": {
-        "lastModified": 1724554116,
-        "narHash": "sha256-ObKHjcUQx5ilXMqWFxcVUN80VoSEsvQz6Aebbn8Q0kw=",
+        "lastModified": 1725049407,
+        "narHash": "sha256-0C/AbTslpnVCSxgNd7i7MlQtumVfvYGSXCmuWCmviiQ=",
         "ref": "refs/heads/main",
-        "rev": "cca05ecf85514c727423b23eaccf57384807a16c",
-        "revCount": 17,
+        "rev": "ea0ba81f4b9a05a2cb8bf2ed847f43c80ebe3027",
+        "revCount": 20,
         "type": "git",
         "url": "https://gitea.chiliahedron.wtf/chiliahedron/gallipedal-library"
       },
