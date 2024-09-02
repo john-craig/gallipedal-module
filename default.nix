@@ -366,12 +366,16 @@ in {
                };
             after = [
               "podman-network-${servName}.service"
-              "podman-mount-${servName}-${conName}.service"
-            ];
+            ] ++ lib.lists.optionals
+              (builtins.hasAttr "volumes" conDef &&
+               (builtins.length conDef.volumes) > 0)
+              [ "podman-mount-${servName}-${conName}.service" ];
             requires = [
               "podman-network-${servName}.service"
-              "podman-mount-${servName}-${conName}.service"
-            ];
+            ] ++ lib.lists.optionals
+              (builtins.hasAttr "volumes" conDef &&
+               (builtins.length conDef.volumes) > 0)
+              [ "podman-mount-${servName}-${conName}.service" ];
             partOf = [
               "podman-compose-${servName}-root.target"
             ];
