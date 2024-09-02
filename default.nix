@@ -130,12 +130,12 @@ in {
 
       mapProxyAttrs = servName: conName: proxyDef: conDef: (
         rec {
-          portStr = if (builtins.hasAttr "port" proxyDef)
-            then proxyDef.port
+          portStr = if (builtins.hasAttr "containerPort" proxyDef)
+            then proxyDef.containerPort
             else (builtins.elemAt conDef.ports 0).containerPort;
           hostnameStr = if (builtins.hasAttr "hostnames" proxyDef)
             then lib.strings.concatStringsSep ", "
-              lib.lists.forEach proxyDef.hostnames (hostname: "`${hostmame}`")
+              lib.lists.forEach proxyDef.hostnames (hostname: "`${hostname}`")
             else "`${proxyDef.hostname}`";
         }
       );
@@ -144,67 +144,67 @@ in {
         let
           proxyAttrs = mapProxyAttrs servName conName proxyDef conDef;
         in 
-        lib.attrsets.optionalAttrs 
+        (lib.attrsets.optionalAttrs 
           (builtins.hasAttr "public" proxyDef &&
            proxyDef.public) 
         {
           "traefik.enable" = "true";
           "traefik.docker.network" = "${reverseProxyNetwork}";
           "traefik.http.services.${conName}-public.loadbalancer.server.port" = "${proxyAttrs.portStr}";
-          "traefik.http.routers.${conName}-public.service" = "${conName-public}";
+          "traefik.http.routers.${conName}-public.service" = "${conName}-public";
           "traefik.http.routers.${conName}-public.entryPoints" = "websecure";
-          "traefik.http.routers.${conName}-public.rule" = "Host(${proxyAttrs.hostNameStr})";
+          "traefik.http.routers.${conName}-public.rule" = "Host(${proxyAttrs.hostnameStr})";
           "traefik.http.routers.${conName}-public.tls" = "true";
           "traefik.http.routers.${conName}-public.tls.certresolver" = "${proxyTLSResolver}";
-        }
+        })
       );
 
       mkExternalProxyLabels = servName: conName: proxyDef: conDef: (
         let
           proxyAttrs = mapProxyAttrs servName conName proxyDef conDef;
         in 
-        lib.attrsets.optionalAttrs 
+        (lib.attrsets.optionalAttrs 
           (builtins.hasAttr "external" proxyDef &&
            proxyDef.external) 
         {
           "traefik.enable" = "true";
           "traefik.docker.network" = "${reverseProxyNetwork}";
           "traefik.http.services.${conName}-external.loadbalancer.server.port" = "${proxyAttrs.portStr}";
-          "traefik.http.routers.${conName}-external.service" = "${conName-external}";
+          "traefik.http.routers.${conName}-external.service" = "${conName}-external";
           "traefik.http.routers.${conName}-external.entryPoints" = "websecure";
           "traefik.http.routers.${conName}-external.middlewares" = "authelia@docker";
-          "traefik.http.routers.${conName}-external.rule" = "Host(${proxyAttrs.hostNameStr})";
+          "traefik.http.routers.${conName}-external.rule" = "Host(${proxyAttrs.hostnameStr})";
           "traefik.http.routers.${conName}-external.tls" = "true";
           "traefik.http.routers.${conName}-external.tls.certresolver" = "${proxyTLSResolver}";
-        }
+        })
       );
 
       mkInternalProxyLabels = servName: conName: proxyDef: conDef: (
         let
           proxyAttrs = mapProxyAttrs servName conName proxyDef conDef;
         in 
-        lib.attrsets.optionalAttrs 
+        (lib.attrsets.optionalAttrs 
           (builtins.hasAttr "internal" proxyDef &&
            proxyDef.internal) 
         {
           "traefik.enable" = "true";
           "traefik.docker.network" = "${reverseProxyNetwork}";
           "traefik.http.services.${conName}-internal.loadbalancer.server.port" = "${proxyAttrs.portStr}";
-          "traefik.http.routers.${conName}-internal.service" = "${conName-internal}";
+          "traefik.http.routers.${conName}-internal.service" = "${conName}-internal";
           "traefik.http.routers.${conName}-internal.entryPoints" = "websecure";
-          "traefik.http.routers.${conName}-internal.rule" = "Host(${proxyAttrs.hostNameStr}) && ${internalProxyRules}";
+          "traefik.http.routers.${conName}-internal.rule" = "Host(${proxyAttrs.hostnameStr}) && ${internalProxyRules}";
           "traefik.http.routers.${conName}-internal.tls" = "true";
           "traefik.http.routers.${conName}-internal.tls.certresolver" = "${proxyTLSResolver}";
-        }
+        })
       );
 
       reduceProxyDefs = servName: conName: conDef: (
         lib.lists.foldl (
           acc: proxyDef: (
             acc // 
-              (mkPublicProxyLabels servName conName proxyDef conDef) //
-              (mkInternalProxyLabels servName conName proxyDef conDef) //
-              (mkExternalProxyLabels servName conName proxyDef conDef)
+              mkPublicProxyLabels servName conName proxyDef conDef //
+              mkInternalProxyLabels servName conName proxyDef conDef //
+              mkExternalProxyLabels servName conName proxyDef conDef
           )
         ) {} conDef.proxies
       );
@@ -285,7 +285,7 @@ in {
               } //
             lib.attrsets.optionalAttrs 
               (builtins.hasAttr "proxies" conDef) 
-              reduceProxyDefs servName conName conDef
+              (reduceProxyDefs servName conName conDef) //
             lib.attrsets.optionalAttrs
               (builtins.hasAttr "extraLabels" conDef) conDef.extraLabels;
 
@@ -335,7 +335,8 @@ in {
                 conDef.extraOptions ++
 
               # Connect to proxy network
-              lib.lists.optionals (builtins.hasAttr "proxy" conDef)
+              lib.lists.optionals (builtins.hasAttr "proxy" conDef ||
+                                   builtins.hasAttr "proxies" conDef)
                 [ "--network=${reverseProxyNetwork}" ] ++
 
               # Connect to external network
@@ -496,7 +497,8 @@ in {
         acc //
         # Reverse proxy network
         lib.attrsets.optionalAttrs 
-          (builtins.hasAttr "proxy" conDef)
+          (builtins.hasAttr "proxy" conDef ||
+           builtins.hasAttr "proxies" conDef)
           {
             "podman-network-${reverseProxyNetwork}" = {
               path = [ pkgs.podman ];
