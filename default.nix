@@ -133,15 +133,21 @@ in {
           portStr = if (builtins.hasAttr "containerPort" proxyDef)
             then proxyDef.containerPort
             else (builtins.elemAt conDef.ports 0).containerPort;
+
           hostnameStr = if (builtins.hasAttr "hostnames" proxyDef)
             then lib.strings.concatStringsSep ", "
-              lib.lists.forEach proxyDef.hostnames (hostname: "`${hostname}`")
+              (lib.lists.forEach proxyDef.hostnames (hostname: "`${hostname}`"))
             else "`${proxyDef.hostname}`";
+
+          prefixStr = if (builtins.hasAttr "pathPrefix" proxyDef)
+            then " && PathPrefix(`${proxyDef.pathPrefix}`)"
+            else "";
         }
       );
 
-      mkPublicProxyLabels = servName: conName: proxyDef: conDef: (
+      mkPublicProxyLabels = servName: conName: proxyIdx: proxyDef: conDef: (
         let
+          proxyIdxStr = builtins.toString proxyIdx;
           proxyAttrs = mapProxyAttrs servName conName proxyDef conDef;
         in 
         (lib.attrsets.optionalAttrs 
@@ -150,17 +156,18 @@ in {
         {
           "traefik.enable" = "true";
           "traefik.docker.network" = "${reverseProxyNetwork}";
-          "traefik.http.services.${conName}-public.loadbalancer.server.port" = "${proxyAttrs.portStr}";
-          "traefik.http.routers.${conName}-public.service" = "${conName}-public";
-          "traefik.http.routers.${conName}-public.entryPoints" = "websecure";
-          "traefik.http.routers.${conName}-public.rule" = "Host(${proxyAttrs.hostnameStr})";
-          "traefik.http.routers.${conName}-public.tls" = "true";
-          "traefik.http.routers.${conName}-public.tls.certresolver" = "${proxyTLSResolver}";
+          "traefik.http.services.${conName}-${proxyIdxStr}-public.loadbalancer.server.port" = "${proxyAttrs.portStr}";
+          "traefik.http.routers.${conName}-${proxyIdxStr}-public.service" = "${conName}-${proxyIdxStr}-public";
+          "traefik.http.routers.${conName}-${proxyIdxStr}-public.entryPoints" = "websecure";
+          "traefik.http.routers.${conName}-${proxyIdxStr}-public.rule" = "Host(${proxyAttrs.hostnameStr})${proxyAttrs.prefixStr}";
+          "traefik.http.routers.${conName}-${proxyIdxStr}-public.tls" = "true";
+          "traefik.http.routers.${conName}-${proxyIdxStr}-public.tls.certresolver" = "${proxyTLSResolver}";
         })
       );
 
-      mkExternalProxyLabels = servName: conName: proxyDef: conDef: (
+      mkExternalProxyLabels = servName: conName: proxyIdx: proxyDef: conDef: (
         let
+          proxyIdxStr = builtins.toString proxyIdx;
           proxyAttrs = mapProxyAttrs servName conName proxyDef conDef;
         in 
         (lib.attrsets.optionalAttrs 
@@ -169,18 +176,19 @@ in {
         {
           "traefik.enable" = "true";
           "traefik.docker.network" = "${reverseProxyNetwork}";
-          "traefik.http.services.${conName}-external.loadbalancer.server.port" = "${proxyAttrs.portStr}";
-          "traefik.http.routers.${conName}-external.service" = "${conName}-external";
-          "traefik.http.routers.${conName}-external.entryPoints" = "websecure";
-          "traefik.http.routers.${conName}-external.middlewares" = "authelia@docker";
-          "traefik.http.routers.${conName}-external.rule" = "Host(${proxyAttrs.hostnameStr})";
-          "traefik.http.routers.${conName}-external.tls" = "true";
-          "traefik.http.routers.${conName}-external.tls.certresolver" = "${proxyTLSResolver}";
+          "traefik.http.services.${conName}-${proxyIdxStr}-external.loadbalancer.server.port" = "${proxyAttrs.portStr}";
+          "traefik.http.routers.${conName}-${proxyIdxStr}-external.service" = "${conName}-${proxyIdxStr}-external";
+          "traefik.http.routers.${conName}-${proxyIdxStr}-external.entryPoints" = "websecure";
+          "traefik.http.routers.${conName}-${proxyIdxStr}-external.middlewares" = "authelia@docker";
+          "traefik.http.routers.${conName}-${proxyIdxStr}-external.rule" = "Host(${proxyAttrs.hostnameStr})${proxyAttrs.prefixStr}";
+          "traefik.http.routers.${conName}-${proxyIdxStr}-external.tls" = "true";
+          "traefik.http.routers.${conName}-${proxyIdxStr}-external.tls.certresolver" = "${proxyTLSResolver}";
         })
       );
 
-      mkInternalProxyLabels = servName: conName: proxyDef: conDef: (
+      mkInternalProxyLabels = servName: conName: proxyIdx: proxyDef: conDef: (
         let
+          proxyIdxStr = builtins.toString proxyIdx;
           proxyAttrs = mapProxyAttrs servName conName proxyDef conDef;
         in 
         (lib.attrsets.optionalAttrs 
@@ -189,22 +197,25 @@ in {
         {
           "traefik.enable" = "true";
           "traefik.docker.network" = "${reverseProxyNetwork}";
-          "traefik.http.services.${conName}-internal.loadbalancer.server.port" = "${proxyAttrs.portStr}";
-          "traefik.http.routers.${conName}-internal.service" = "${conName}-internal";
-          "traefik.http.routers.${conName}-internal.entryPoints" = "websecure";
-          "traefik.http.routers.${conName}-internal.rule" = "Host(${proxyAttrs.hostnameStr}) && ${internalProxyRules}";
-          "traefik.http.routers.${conName}-internal.tls" = "true";
-          "traefik.http.routers.${conName}-internal.tls.certresolver" = "${proxyTLSResolver}";
+          "traefik.http.services.${conName}-${proxyIdxStr}-internal.loadbalancer.server.port" = "${proxyAttrs.portStr}";
+          "traefik.http.routers.${conName}-${proxyIdxStr}-internal.service" = "${conName}-${proxyIdxStr}-internal";
+          "traefik.http.routers.${conName}-${proxyIdxStr}-internal.entryPoints" = "websecure";
+          "traefik.http.routers.${conName}-${proxyIdxStr}-internal.rule" = "Host(${proxyAttrs.hostnameStr}) && ${internalProxyRules}${proxyAttrs.prefixStr}";
+          "traefik.http.routers.${conName}-${proxyIdxStr}-internal.tls" = "true";
+          "traefik.http.routers.${conName}-${proxyIdxStr}-internal.tls.certresolver" = "${proxyTLSResolver}";
         })
       );
 
       reduceProxyDefs = servName: conName: conDef: (
         lib.lists.foldl (
           acc: proxyDef: (
+            let
+              proxyIdx = lib.lists.findFirstIndex (x: x == proxyDef) 0 conDef.proxies;
+            in
             acc // 
-              mkPublicProxyLabels servName conName proxyDef conDef //
-              mkInternalProxyLabels servName conName proxyDef conDef //
-              mkExternalProxyLabels servName conName proxyDef conDef
+              mkPublicProxyLabels servName conName proxyIdx proxyDef conDef //
+              mkInternalProxyLabels servName conName proxyIdx proxyDef conDef //
+              mkExternalProxyLabels servName conName proxyIdx proxyDef conDef
           )
         ) {} conDef.proxies
       );
