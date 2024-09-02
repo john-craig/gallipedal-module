@@ -1,11 +1,7 @@
  { gallipedal-library, ... }: 
  { pkgs, lib, config, ... }: 
-let
-  internalProxyRules = "HeadersRegexp(`X-Real-Ip`, `(^192\.168\.[0-9]+\.[0-9]+)|(^100\.127\.79\.104)`)";
-  reverseProxyNetwork = "chiliahedron-services";
-  proxyTLSResolver = "chiliahedron-resolver";
-  
-  shLib = import ./lib/default.nix;
+let  
+  # shLib = import ./lib/default.nix;
   servicesLibrary = gallipedal-library.default;
 in {
   options.services.gallipedal = {
@@ -14,7 +10,25 @@ in {
     services = lib.mkOption {
       type = lib.types.listOf lib.types.str;
     };
-  
+
+    proxyConf = lib.mkOption {
+      default = { };
+      type = lib.types.submodule {
+        options = {
+          internalRules = lib.mkOption {
+            type = lib.types.str;
+          };
+
+          network = lib.mkOption {
+            type = lib.types.str;
+          };
+
+          tlsResolver = lib.mkOption {
+            type = lib.types.str;
+          };
+        };
+      };
+    };
   };
 
     # services = mkOption {
@@ -40,6 +54,16 @@ in {
     # };
 
   config = let
+    internalProxyRules = if builtins.hasAttr "internalRules" config.services.gallipedal.proxyConf
+      then config.services.gallipedal.proxyConf.internalRules
+      else "";
+    reverseProxyNetwork = if builtins.hasAttr "network" config.services.gallipedal.proxyConf
+      then config.services.gallipedal.proxyConf.network
+      else "";
+    proxyTLSResolver = if builtins.hasAttr "tlsResolver" config.services.gallipedal.proxyConf
+      then config.services.gallipedal.proxyConf.tlsResolver
+      else "";
+
     serviceDefinitions = lib.attrsets.getAttrs
         config.services.gallipedal.services
         servicesLibrary;
@@ -426,12 +450,16 @@ in {
                };
             after = [
               "podman-network-${servName}.service"
-              "podman-mount-${servName}-${conName}.service"
-            ];
+            ] ++ lib.lists.optionals
+              (builtins.hasAttr "volumes" conDef &&
+               (builtins.length conDef.volumes) > 0)
+              [ "podman-mount-${servName}-${conName}.service" ];
             requires = [
               "podman-network-${servName}.service"
-              "podman-mount-${servName}-${conName}.service"
-            ];
+            ] ++ lib.lists.optionals
+              (builtins.hasAttr "volumes" conDef &&
+               (builtins.length conDef.volumes) > 0)
+              [ "podman-mount-${servName}-${conName}.service" ];
             partOf = [
               "podman-compose-${servName}-root.target"
             ];
