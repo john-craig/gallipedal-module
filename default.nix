@@ -132,7 +132,14 @@ in {
         rec {
           portStr = if (builtins.hasAttr "containerPort" proxyDef)
             then proxyDef.containerPort
-            else (builtins.elemAt conDef.ports 0).containerPort;
+            else if (builtins.hasAttr "ports" conDef && 
+                      builtins.length conDef.ports > 0)
+              then (builtins.elemAt conDef.ports 0).containerPort
+              else "";
+          
+          urlStr = if (builtins.hasAttr "proxyUrl" proxyDef)
+            then proxyDef.proxyUrl
+            else "";
 
           hostnameStr = if (builtins.hasAttr "hostnames" proxyDef)
             then lib.strings.concatStringsSep ", "
@@ -145,6 +152,24 @@ in {
         }
       );
 
+      mkCommonProxyLabels = proxyType: servName: conName: proxyIdx: proxyIdxStr: proxyDef: conDef: proxyAttrs: (
+        {
+          "traefik.enable" = "true";
+          "traefik.docker.network" = "${reverseProxyNetwork}";
+          "traefik.http.routers.${conName}-${proxyIdxStr}-${proxyType}.service" = "${conName}-${proxyIdxStr}-${proxyType}";
+          "traefik.http.routers.${conName}-${proxyIdxStr}-${proxyType}.entryPoints" = "websecure";
+          "traefik.http.routers.${conName}-${proxyIdxStr}-${proxyType}.rule" = "Host(${proxyAttrs.hostnameStr})${proxyAttrs.prefixStr}";
+          "traefik.http.routers.${conName}-${proxyIdxStr}-${proxyType}.tls" = "true";
+          "traefik.http.routers.${conName}-${proxyIdxStr}-${proxyType}.tls.certresolver" = "${proxyTLSResolver}";
+        } // 
+        (lib.attrsets.optionalAttrs (proxyAttrs.portStr != "") {
+          "traefik.http.services.${conName}-${proxyIdxStr}-${proxyType}.loadbalancer.server.port" = "${proxyAttrs.portStr}";
+        }) //
+        (lib.attrsets.optionalAttrs (proxyAttrs.urlStr != "") {
+          "traefik.http.services.${conName}-${proxyIdxStr}-${proxyType}.loadbalancer.server.url" = "${proxyAttrs.urlStr}";
+        })
+      );
+
       mkPublicProxyLabels = servName: conName: proxyIdx: proxyDef: conDef: (
         let
           proxyIdxStr = builtins.toString proxyIdx;
@@ -153,16 +178,8 @@ in {
         (lib.attrsets.optionalAttrs 
           (builtins.hasAttr "public" proxyDef &&
            proxyDef.public) 
-        {
-          "traefik.enable" = "true";
-          "traefik.docker.network" = "${reverseProxyNetwork}";
-          "traefik.http.services.${conName}-${proxyIdxStr}-public.loadbalancer.server.port" = "${proxyAttrs.portStr}";
-          "traefik.http.routers.${conName}-${proxyIdxStr}-public.service" = "${conName}-${proxyIdxStr}-public";
-          "traefik.http.routers.${conName}-${proxyIdxStr}-public.entryPoints" = "websecure";
-          "traefik.http.routers.${conName}-${proxyIdxStr}-public.rule" = "Host(${proxyAttrs.hostnameStr})${proxyAttrs.prefixStr}";
-          "traefik.http.routers.${conName}-${proxyIdxStr}-public.tls" = "true";
-          "traefik.http.routers.${conName}-${proxyIdxStr}-public.tls.certresolver" = "${proxyTLSResolver}";
-        })
+          (mkCommonProxyLabels "public"
+            servName conName proxyIdx proxyIdxStr proxyDef conDef proxyAttrs))
       );
 
       mkExternalProxyLabels = servName: conName: proxyIdx: proxyDef: conDef: (
@@ -173,16 +190,10 @@ in {
         (lib.attrsets.optionalAttrs 
           (builtins.hasAttr "external" proxyDef &&
            proxyDef.external) 
-        {
-          "traefik.enable" = "true";
-          "traefik.docker.network" = "${reverseProxyNetwork}";
-          "traefik.http.services.${conName}-${proxyIdxStr}-external.loadbalancer.server.port" = "${proxyAttrs.portStr}";
-          "traefik.http.routers.${conName}-${proxyIdxStr}-external.service" = "${conName}-${proxyIdxStr}-external";
-          "traefik.http.routers.${conName}-${proxyIdxStr}-external.entryPoints" = "websecure";
+        (mkCommonProxyLabels "external"
+              servName conName proxyIdx proxyIdxStr proxyDef conDef proxyAttrs)
+        // {
           "traefik.http.routers.${conName}-${proxyIdxStr}-external.middlewares" = "authelia@docker";
-          "traefik.http.routers.${conName}-${proxyIdxStr}-external.rule" = "Host(${proxyAttrs.hostnameStr})${proxyAttrs.prefixStr}";
-          "traefik.http.routers.${conName}-${proxyIdxStr}-external.tls" = "true";
-          "traefik.http.routers.${conName}-${proxyIdxStr}-external.tls.certresolver" = "${proxyTLSResolver}";
         })
       );
 
@@ -194,16 +205,11 @@ in {
         (lib.attrsets.optionalAttrs 
           (builtins.hasAttr "internal" proxyDef &&
            proxyDef.internal) 
-        {
-          "traefik.enable" = "true";
-          "traefik.docker.network" = "${reverseProxyNetwork}";
-          "traefik.http.services.${conName}-${proxyIdxStr}-internal.loadbalancer.server.port" = "${proxyAttrs.portStr}";
-          "traefik.http.routers.${conName}-${proxyIdxStr}-internal.service" = "${conName}-${proxyIdxStr}-internal";
-          "traefik.http.routers.${conName}-${proxyIdxStr}-internal.entryPoints" = "websecure";
+        (mkCommonProxyLabels "internal"
+              servName conName proxyIdx proxyIdxStr proxyDef conDef proxyAttrs))
+        // {
           "traefik.http.routers.${conName}-${proxyIdxStr}-internal.rule" = "Host(${proxyAttrs.hostnameStr}) && ${internalProxyRules}${proxyAttrs.prefixStr}";
-          "traefik.http.routers.${conName}-${proxyIdxStr}-internal.tls" = "true";
-          "traefik.http.routers.${conName}-${proxyIdxStr}-internal.tls.certresolver" = "${proxyTLSResolver}";
-        })
+        }
       );
 
       reduceProxyDefs = servName: conName: conDef: (
