@@ -373,20 +373,12 @@ in {
       ) {} serviceDefinitions);
   
     # Define users for each container within each service
-    users.groups = (reduceContainers (acc: servName: servDef: conName: conDef: (
-        acc // {
-          "${servName}-${conName}" = {};
-        })
-      )) {} serviceDefinitions;
+    users.groups."selfhosting" = {};
 
-    users.users = (reduceContainers (acc: servName: servDef: conName: conDef: (
-        acc // {
-          "${servName}-${conName}" = { 
-            isSystemUser = true;
-            group = "${servName}-${conName}";
-          };
-        })
-      )) {} serviceDefinitions;
+    users.users."selfhosting" = {
+      isSystemUser = true;
+      group = "selfhosting";
+    };
 
     # Define tmpfiles for each container
     systemd.tmpfiles.rules = (reduceContainers (acc: servName: servDef: conName: conDef: (
@@ -395,7 +387,7 @@ in {
           user = "${servName}-${conName}"; 
           group = "${servName}-${conName}";
         in 
-          "d /var/lib/selfhosted/${servName}/${conName} 0700 ${user} ${group}")
+          "d /var/lib/selfhosted/${servName}/${conName} 0700 selfhosting selfhosting")
       ]
      )
     )) [] serviceDefinitions;
