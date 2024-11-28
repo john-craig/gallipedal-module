@@ -125,6 +125,15 @@ in {
           varPath = if lib.filesystem.pathIsDirectory (/. + hostPath)
             then varDir
             else "${varDir}/${builtins.baseNameOf hostPath}";
+          
+          faclPerms = if (
+            (builtins.elemAt (lib.strings.splitString  "," volDef.mountOptions) 0) == "rw"
+          ) 
+            then "rwx"
+            else "rx";
+
+          # Check to see if this is a path we shouldn't try to mess with
+          isSystemPath = lib.strings.hasPrefix "/etc" volDef.hostPath;
         }
       );
 
@@ -365,6 +374,7 @@ in {
               # Add default network connections
               [ "--network-alias=${conName}"
                 "--network=${servName}-internal" 
+                "--userns=auto"
               ];
 
             dependsOn = lib.mkIf (builtins.hasAttr "dependsOn" conDef) conDef.dependsOn;
@@ -373,27 +383,57 @@ in {
       ) {} serviceDefinitions);
   
     # Define users for each container within each service
-    users.groups."selfhosting" = {};
-
-    users.users."selfhosting" = {
-      isSystemUser = true;
-      group = "selfhosting";
+    users.groups = {
+      "selfhosting" = {};
+      "containers" = {};
     };
+    
+    users.users = {
+      "selfhosting" = {
+        isSystemUser = true;
+        group = "selfhosting";
+      };
+      
+      "containers" = {
+        isSystemUser = true;
+        group = "containers";
+
+        subUidRanges = [{
+          count = 2147483647;
+          startUid = 2147483648;
+        }];
+        subGidRanges = [{
+          count = 2147483647;
+          startGid = 2147483647;
+        }];
+      };
+    };
+
 
     # Define tmpfiles for each container
     systemd.tmpfiles.rules = (reduceContainers (acc: servName: servDef: conName: conDef: (
       acc ++ [
-        (let 
-          user = "${servName}-${conName}"; 
-          group = "${servName}-${conName}";
-        in 
-          "d /var/lib/selfhosted/${servName}/${conName} 0700 selfhosting selfhosting")
-      ]
+        "d /var/lib/selfhosted/${servName}/${conName} 0700 containers containers"
+      ] ++ lib.lists.optionals (builtins.hasAttr "volumes" conDef) (lib.lists.foldl
+        (acc: volDef: 
+          let
+            volAttrs = mapVolumeAttrs servName conName volDef;
+          in acc ++ lib.lists.optionals (!volAttrs.isSystemPath) [
+            "A+ ${volDef.hostPath} user:containers:${volAttrs.faclPerms}"
+            "A+ ${volDef.hostPath} group:containers:${volAttrs.faclPerms}"
+          ] ++ lib.lists.optionals (builtins.hasAttr "extraPerms" volDef) (
+            (lib.lists.foldl
+              (acc: extraPerms:
+                acc ++ [ "Z ${volDef.hostPath}/${extraPerms.relPath} ${extraPerms.permissions} - - " ])
+            [] volDef.extraPerms)
+          )
+        ) [] conDef.volumes
+      )
      )
     )) [] serviceDefinitions;
     
 
-    systemd.services = 
+    systemd.services =
       # Define mounts for each container
       ((reduceContainers (acc: servName: servDef: conName: conDef: (
         acc // lib.attrsets.optionalAttrs 
