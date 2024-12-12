@@ -319,7 +319,9 @@ in {
             # Environment Variables
             #######################################
             environment = lib.attrsets.optionalAttrs 
-              (builtins.hasAttr "environment" conDef) conDef.environment;
+              (builtins.hasAttr "environment" conDef) conDef.environment //
+                lib.attrsets.optionalAttrs 
+              (builtins.hasAttr "environment" servDef) servDef.environment;
 
             #######################################
             # Ports
@@ -413,12 +415,13 @@ in {
     # Define tmpfiles for each container
     systemd.tmpfiles.rules = (reduceContainers (acc: servName: servDef: conName: conDef: (
       acc ++ [
-        "d /var/lib/selfhosted/${servName}/${conName} 0700 containers containers"
+        "d /var/lib/selfhosted/${servName}/${conName} 0770 containers containers"
       ] ++ lib.lists.optionals (builtins.hasAttr "volumes" conDef) (lib.lists.foldl
         (acc: volDef: 
           let
             volAttrs = mapVolumeAttrs servName conName volDef;
           in acc ++ lib.lists.optionals (!volAttrs.isSystemPath) [
+            # "d ${volAttrs.hostDir}"
             "A+ ${volDef.hostPath} user:containers:${volAttrs.faclPerms}"
             "A+ ${volDef.hostPath} group:containers:${volAttrs.faclPerms}"
           ] ++ lib.lists.optionals (builtins.hasAttr "extraPerms" volDef) (
