@@ -13,6 +13,7 @@
 
     nixosModules = {
       gallipedal = (import ./. inputs);
+      gallipedal-v2 = (import ./v2 inputs);
     };
 
   };
