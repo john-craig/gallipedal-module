@@ -1,15 +1,22 @@
-{ gallipedal-library, ... }:
 { pkgs, lib, config, ... }:
 let
-  # shLib = import ./lib/default.nix;
-  servicesLibrary = gallipedal-library.default;
+  servDefs = import ./services;
+  utils = import ./utilities { inherit lib; };
 in
 {
   options.services.gallipedal = {
     enable = lib.mkEnableOption "Self-hosted Services";
 
     services = lib.mkOption {
-      type = lib.types.listOf lib.types.str;
+      default = { };
+      type = lib.types.submodule {
+        options = (lib.attrsets.foldlAttrs
+          (acc: servName: servDef:
+            acc // {
+              "${servName}" = utils.mkServiceOptions servName servDef; 
+            })
+          {} servDefs);
+      };
     };
 
     proxyConf = lib.mkOption {
@@ -32,30 +39,24 @@ in
     };
   };
 
-  # services = mkOption {
-  #   default = { };
-  #   example = { };
-  #   description = lib.mdDoc ''
-  #     A definition for the selfhosted service.
-  #   '';
-
-  #   type = with types; attrsOf (submodules (
-  #     { config, name, ... }: { options = {
-  #       enable = mkEnableOption "Self-hosted service defined by this option";
-
-  #       name = mkOption {
-  #         visible = false;
-  #         default = name;
-  #         example = "nginx";
-  #         type = types.str;
-  #         description = lib.mdDoc "Name of the service to be run.";
-  #       };
-  #     }}
-  #   ));
-  # };
-
   config =
     let
+      enabledServices = lib.filterAttrs (name: value: value.enable != false) config.services.gallipedal.services;
+
+      lowestKey = attrSet: let
+        # Extract the keys and sort them alphabetically
+        sortedKeys = builtins.attrNames attrSet;
+      in
+        # Return the key corresponding to the alphabetically first key
+        builtins.head sortedKeys;
+
+      toProperCase = str: 
+        let
+          lowercaseStr = lib.strings.toLower str;
+          replacedStr = builtins.replaceStrings [ "_" ] [ "-" ] lowercaseStr;
+        in
+          replacedStr;
+
       internalProxyRules =
         if builtins.hasAttr "internalRules" config.services.gallipedal.proxyConf
         then config.services.gallipedal.proxyConf.internalRules
@@ -69,9 +70,9 @@ in
         then config.services.gallipedal.proxyConf.tlsResolver
         else "";
 
-      serviceDefinitions = lib.attrsets.getAttrs
-        config.services.gallipedal.services
-        servicesLibrary;
+      # serviceDefinitions = lib.attrsets.getAttrs
+      #   enabledServices
+      #   servicesLibrary;
 
       # Invoke the function 'func' with
       #   acc: servName: servDef
@@ -108,23 +109,22 @@ in
       );
 
       containerHasLowPort = conDef: (
-        lib.lists.foldl
-          (acc: portDef:
+        lib.attrsets.foldlAttrs
+          (acc: conPort: portDef:
             acc || (lib.strings.toInt portDef.hostPort) < 1024
           )
           false
-          (lib.lists.optionals
+          (lib.attrsets.optionalAttrs
             (builtins.hasAttr "ports" conDef)
             conDef.ports)
       );
 
-      mapVolumeAttrs = servName: conName: volDef: (
+      mapVolumeAttrs = servName: conName: conPath: volDef: (
         rec {
-          conPath = volDef.containerPath;
           hostPath = volDef.hostPath;
 
           hostDir =
-            if lib.filesystem.pathIsDirectory (/. + hostPath)
+            if (volDef.volumeType == "directory")
             then hostPath
             else builtins.dirOf hostPath;
 
@@ -133,14 +133,14 @@ in
           # For a path to a file, the the subdirectory containing the file
           # is used as the container base, (e.g. in /usr/bin/test, `bin` would be used)
           hostBase =
-            if lib.filesystem.pathIsDirectory (/. + hostPath)
+            if (volDef.volumeType == "directory")
             then builtins.baseNameOf hostPath
             else builtins.baseNameOf (builtins.dirOf hostPath);
           varHash = builtins.hashString "sha256" "${hostPath}-${conPath}";
 
           varDir = "/var/lib/selfhosted/${servName}/${conName}/${varHash}-${hostBase}";
           varPath =
-            if lib.filesystem.pathIsDirectory (/. + hostPath)
+            if (volDef.volumeType == "directory")
             then varDir
             else "${varDir}/${builtins.baseNameOf hostPath}";
 
@@ -156,14 +156,22 @@ in
         }
       );
 
+      mapSecretAttrs = servName: conName: secretName: secretDef: (
+        rec {
+          secretEnvName = secretName;
+          secretPath = secretDef;
+          secretProperName = "${servName}-${conName}-${(toProperCase secretEnvName)}";
+        }
+      );
+
       mapProxyAttrs = servName: conName: proxyDef: conDef: (
         rec {
           portStr =
             if (builtins.hasAttr "containerPort" proxyDef)
             then proxyDef.containerPort
             else if (builtins.hasAttr "ports" conDef &&
-              builtins.length conDef.ports > 0)
-            then (builtins.elemAt conDef.ports 0).containerPort
+              builtins.length (builtins.attrNames conDef.ports) > 0)
+            then lowestKey conDef.ports
             else "";
 
           urlStr =
@@ -330,7 +338,7 @@ in
                     "traefik.http.routers.${conName}-external.rule" = "Host(`${conDef.proxy.hostname}`)";
                     "traefik.http.routers.${conName}-external.tls" = "true";
                     "traefik.http.routers.${conName}-external.tls.certresolver" = "${proxyTLSResolver}";
-                    "traefik.http.services.${conName}.loadbalancer.server.port" = (builtins.elemAt conDef.ports 0).containerPort;
+                    "traefik.http.services.${conName}.loadbalancer.server.port" = lowestKey conDef.ports;
                   } //
                 lib.attrsets.optionalAttrs
                   (builtins.hasAttr "proxy" conDef &&
@@ -344,7 +352,7 @@ in
                     "traefik.http.routers.${conName}-internal.rule" = "Host(`${conDef.proxy.hostname}`) && ${internalProxyRules}";
                     "traefik.http.routers.${conName}-internal.tls" = "true";
                     "traefik.http.routers.${conName}-internal.tls.certresolver" = "${proxyTLSResolver}";
-                    "traefik.http.services.${conName}.loadbalancer.server.port" = (builtins.elemAt conDef.ports 0).containerPort;
+                    "traefik.http.services.${conName}.loadbalancer.server.port" = lowestKey conDef.ports;
                   } //
                 lib.attrsets.optionalAttrs
                   (builtins.hasAttr "proxy" conDef &&
@@ -358,7 +366,7 @@ in
                     "traefik.http.routers.${conName}-public.rule" = "Host(`${conDef.proxy.hostname}`)";
                     "traefik.http.routers.${conName}-public.tls" = "true";
                     "traefik.http.routers.${conName}-public.tls.certresolver" = "${proxyTLSResolver}";
-                    "traefik.http.services.${conName}.loadbalancer.server.port" = (builtins.elemAt conDef.ports 0).containerPort;
+                    "traefik.http.services.${conName}.loadbalancer.server.port" = lowestKey conDef.ports;
                   } //
                 lib.attrsets.optionalAttrs
                   (builtins.hasAttr "proxies" conDef)
@@ -382,13 +390,13 @@ in
                 #######################################
                 ports = lib.lists.optionals
                   (builtins.hasAttr "ports" conDef)
-                  (builtins.map
-                    (port:
-                      if builtins.hasAttr "protocol" port
+                  (lib.mapAttrsToList
+                    (containerPort: portDef:
+                      if builtins.hasAttr "protocol" portDef
                       then
-                        "${port.hostPort}:${port.containerPort}/${port.protocol}"
+                        "${portDef.hostPort}:${containerPort}/${portDef.protocol}"
                       else
-                        "${port.hostPort}:${port.containerPort}/tcp"
+                        "${portDef.hostPort}:${containerPort}/tcp"
                     )
                     conDef.ports);
 
@@ -397,16 +405,16 @@ in
                 #######################################
                 volumes = lib.lists.optionals
                   (builtins.hasAttr "volumes" conDef)
-                  (builtins.map
-                    (volDef:
+                  (lib.mapAttrsToList
+                    (containerPath: volDef:
                       let
-                        volAttrs = mapVolumeAttrs servName conName volDef;
+                        volAttrs = mapVolumeAttrs servName conName containerPath volDef;
                       in
                       if builtins.hasAttr "mountOptions" volDef
                       then
-                        "${volAttrs.varPath}:${volDef.containerPath}:${volDef.mountOptions},U"
+                        "${volAttrs.varPath}:${containerPath}:${volDef.mountOptions},U"
                       else
-                        "${volAttrs.varPath}:${volDef.containerPath}:U"
+                        "${volAttrs.varPath}:${containerPath}:U"
                     )
                     conDef.volumes);
 
@@ -419,6 +427,16 @@ in
                   # Add any extra options
                   lib.lists.optionals (builtins.hasAttr "extraOptions" conDef)
                     conDef.extraOptions ++
+
+                  # Add any secrets
+                  lib.lists.optionals (builtins.hasAttr "secrets" conDef)
+                    (lib.attrsets.mapAttrsToList 
+                      (secretName: secretDef:
+                        let
+                          secretAttrs = mapSecretAttrs servName conName secretName secretDef;
+                        in
+                          "--secret=${secretAttrs.secretProperName},type=env,target=${secretAttrs.secretEnvName}"
+                      ) conDef.secrets) ++
 
                   # Connect to proxy network
                   lib.lists.optionals
@@ -446,7 +464,7 @@ in
           )
           )
           { }
-          serviceDefinitions);
+          enabledServices);
 
       # Define users for each container within each service
       users.groups = {
@@ -481,10 +499,10 @@ in
         (reduceContainers (acc: servName: servDef: conName: conDef: (
           acc ++ [
             "d /var/lib/selfhosted/${servName}/${conName} 0770 containers containers"
-          ] ++ lib.lists.optionals (builtins.hasAttr "volumes" conDef) (lib.lists.foldl
-            (acc: volDef:
+          ] ++ lib.lists.optionals (builtins.hasAttr "volumes" conDef) (lib.foldlAttrs
+            (acc: containerPath: volDef:
               let
-                volAttrs = mapVolumeAttrs servName conName volDef;
+                volAttrs = mapVolumeAttrs servName conName containerPath volDef;
               in
               acc ++ lib.lists.optionals (!volAttrs.isSystemPath) [
                 # "d ${volAttrs.hostDir}"
@@ -502,7 +520,7 @@ in
           )
         )
         )) [ ]
-          serviceDefinitions;
+          enabledServices;
 
 
       systemd.services =
@@ -518,10 +536,10 @@ in
                     RemainAfterExit = true;
                   };
                   path = [ pkgs.bindfs ];
-                  script = lib.strings.concatLines (builtins.map
-                    (volDef:
+                  script = lib.strings.concatLines (lib.attrsets.mapAttrsToList
+                    (containerPath: volDef:
                       let
-                        volAttrs = mapVolumeAttrs servName conName volDef;
+                        volAttrs = mapVolumeAttrs servName conName containerPath volDef;
                       in
                       ''
                         ${pkgs.umount}/bin/umount ${volAttrs.varDir} || true
@@ -531,10 +549,10 @@ in
                       ''
                     )
                     conDef.volumes);
-                  postStop = lib.strings.concatLines (builtins.map
-                    (volDef:
+                  postStop = lib.strings.concatLines (lib.attrsets.mapAttrsToList
+                    (containerPath: volDef:
                       let
-                        volAttrs = mapVolumeAttrs servName conName volDef;
+                        volAttrs = mapVolumeAttrs servName conName containerPath volDef;
                       in
                       ''
                         ${pkgs.umount}/bin/umount ${volAttrs.varDir} || true
@@ -563,7 +581,57 @@ in
           )
           ))
             { }
-            serviceDefinitions) //
+            enabledServices) //
+        # Define secrets for each container
+        (
+          (reduceContainers (acc: servName: servDef: conName: conDef: (
+            acc // lib.attrsets.optionalAttrs
+              (builtins.hasAttr "secrets" conDef)
+              {
+                "podman-secrets-${servName}-${conName}" = {
+                  serviceConfig = {
+                    Type = "oneshot";
+                    RemainAfterExit = true;
+                  };
+                  path = [ pkgs.podman ];
+                  script = lib.strings.concatLines (lib.attrsets.mapAttrsToList
+                    (secretName: secretDef:
+                      let
+                        secretAttrs = mapSecretAttrs servName conName secretName secretDef;
+                      in
+                      ''
+                        podman secret create ${secretAttrs.secretProperName} ${secretAttrs.secretPath}
+                      ''
+                    )
+                    conDef.secrets);
+                  postStop = lib.strings.concatLines (lib.attrsets.mapAttrsToList
+                    (secretName: secretDef:
+                      let
+                        secretAttrs = mapSecretAttrs servName conName secretName secretDef;
+                      in
+                      ''
+                        podman secret rm ${secretAttrs.secretProperName}
+                      ''
+                    )
+                    conDef.secrets);
+                  after = [
+                    "podman-network-${servName}.service"
+                  ];
+                  requires = [
+                    "podman-network-${servName}.service"
+                  ];
+                  partOf = [
+                    "podman-compose-${servName}-root.target"
+                  ];
+                  wantedBy = [
+                    "podman-compose-${servName}-root.target"
+                  ];
+                };
+              }
+          )
+          ))
+            { }
+            enabledServices) //
         # Define services for each container
         (
           (reduceContainers (acc: servName: servDef: conName: conDef: (
@@ -584,14 +652,20 @@ in
                   "podman-network-${servName}.service"
                 ] ++ lib.lists.optionals
                   (builtins.hasAttr "volumes" conDef &&
-                  (builtins.length conDef.volumes) > 0)
-                  [ "podman-mount-${servName}-${conName}.service" ];
+                  (builtins.length (lib.attrsets.attrValues conDef.volumes)) > 0)
+                  [ "podman-mount-${servName}-${conName}.service" ]
+                ++ lib.lists.optionals
+                  (builtins.hasAttr "secrets" conDef)
+                  [ "podman-secrets-${servName}-${conName}.service" ];
                 requires = [
                   "podman-network-${servName}.service"
                 ] ++ lib.lists.optionals
                   (builtins.hasAttr "volumes" conDef &&
-                  (builtins.length conDef.volumes) > 0)
-                  [ "podman-mount-${servName}-${conName}.service" ];
+                  (builtins.length (lib.attrsets.attrValues conDef.volumes)) > 0)
+                  [ "podman-mount-${servName}-${conName}.service" ]
+                ++ lib.lists.optionals
+                  (builtins.hasAttr "secrets" conDef)
+                  [ "podman-secrets-${servName}-${conName}.service" ];
                 partOf = [
                   "podman-compose-${servName}-root.target"
                 ];
@@ -603,7 +677,7 @@ in
           )
           ))
             { }
-            serviceDefinitions) //
+            enabledServices) //
         # Define internal networks for each service
         (reduceServices
           (acc: servName: servDef: (
@@ -629,7 +703,7 @@ in
           )
           )
           { }
-          serviceDefinitions) //
+          enabledServices) //
         # Define global external networks
         (reduceContainers
           (acc: servName: servDef: conName: conDef: (
@@ -658,12 +732,12 @@ in
           )
           )
           { }
-          serviceDefinitions);
+          enabledServices);
 
       # Define a target for each service
       systemd.targets =
-        builtins.listToAttrs (builtins.map
-          (servName: {
+        builtins.listToAttrs (lib.attrsets.mapAttrsToList
+          (servName: servDef: {
             "name" = "podman-compose-${servName}-root";
             "value" = {
               unitConfig = {
@@ -672,6 +746,6 @@ in
               wantedBy = [ "multi-user.target" ];
             };
           })
-          config.services.gallipedal.services);
+          enabledServices);
     };
 }

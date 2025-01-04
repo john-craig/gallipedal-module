@@ -1,27 +1,12 @@
 {
   "nodes": {
-    "gallipedal-library": {
-      "locked": {
-        "lastModified": 1733923556,
-        "narHash": "sha256-9MP9yvl8V7V+2nxApYtPhhPo85c2xfNdbXvmdLZFKIU=",
-        "ref": "refs/heads/main",
-        "rev": "de71b638761fba200bc2f0e998a3ffacaf5e7abb",
-        "revCount": 39,
-        "type": "git",
-        "url": "https://gitea.chiliahedron.wtf/chiliahedron/gallipedal-library"
-      },
-      "original": {
-        "type": "git",
-        "url": "https://gitea.chiliahedron.wtf/chiliahedron/gallipedal-library"
-      }
-    },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1733759999,
-        "narHash": "sha256-463SNPWmz46iLzJKRzO3Q2b0Aurff3U1n0nYItxq7jU=",
+        "lastModified": 1735834308,
+        "narHash": "sha256-dklw3AXr3OGO4/XT1Tu3Xz9n/we8GctZZ75ZWVqAVhk=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "a73246e2eef4c6ed172979932bc80e1404ba2d56",
+        "rev": "6df24922a1400241dae323af55f30e4318a6ca65",
         "type": "github"
       },
       "original": {
@@ -33,7 +18,6 @@
     },
     "root": {
       "inputs": {
-        "gallipedal-library": "gallipedal-library",
         "nixpkgs": "nixpkgs"
       }
     }

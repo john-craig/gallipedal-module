@@ -1,0 +1,31 @@
+{
+  "audiobookshelf" = import ./audiobookshelf;
+  "archivebox" = import ./archivebox;
+  "authelia" = import ./authelia;
+  # "cryptpad" = import ./cryptpad;
+  "code-server" = import ./code-server;
+  "dev-blog" = import ./dev-blog;
+  # "freepbx" = import ./freepbx;
+  "gitea" = import ./gitea;
+  "gotify" = import ./gotify;
+  "grocy" = import ./grocy;
+  "home-assistant" = import ./home-assistant;
+  "homepage" = import ./homepage;
+  # "infisical" = import ./infisical;
+  "invidious" = import ./invidious;
+  "jellyfin" = import ./jellyfin;
+  "monitoring" = import ./monitoring;
+  "obsidian-remote" = import ./obsidian-remote;
+  # "onlyoffice" = import ./onlyoffice;
+  "owntracks" = import ./owntracks;
+  "paperless-ngx" = import ./paperless-ngx;
+  "protonmail-bridge" = import ./protonmail-bridge;
+  "registry" = import ./registry;
+  "rhasspy-base" = import ./rhasspy-base;
+  "rhasspy-satellite" = import ./rhasspy-satellite;
+  "timeflip-tracker" = import ./timeflip-tracker;
+  "status-page" = import ./status-page;
+  "syncthing" = import ./syncthing;
+  "torrenting" = import ./torrenting;
+  "vaultwarden" = import ./vaultwarden;
+}
