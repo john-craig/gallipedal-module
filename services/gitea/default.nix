@@ -81,6 +81,8 @@
         {
           hostname = "gitea.chiliahedron.wtf";
 
+          containerPort = "3000";
+
           external = true;
           internal = true;
         }
