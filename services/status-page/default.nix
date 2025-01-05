@@ -11,8 +11,8 @@
 
           extraPerms = [
             {
-              relPath = "recent.html";
-              permissions = "777";
+              relPath = ".";
+              permissions = "755";
             }
           ];
         }
