@@ -1,7 +1,7 @@
 {
   containers = {
     "archivebox" = {
-      image = "archivebox/archivebox:dev";
+      image = "archivebox/archivebox:latest";
       environment = [
         "ADMIN_USERNAME"
         "ALLOWED_HOSTS"
@@ -11,6 +11,8 @@
         "SAVE_ARCHIVE_DOT_ORG"
         "SEARCH_BACKEND_ENGINE"
         "SEARCH_BACKEND_HOST_NAME"
+        "PUID"
+        "PGID"
       ];
 
       secrets = [
@@ -23,6 +25,13 @@
           containerPath = "/data";
           mountOptions = "rw";
           volumeType = "directory";
+
+          extraPerms = [
+            {
+              relPath = ".";
+              permissions = "777";
+            }
+          ];
         }
       ];
       ports = [
@@ -31,7 +40,7 @@
           protocol = "tcp";
         }
       ];
-      
+
       proxies = [
         {
           hostname = "archivebox.chiliahedron.wtf";
@@ -44,6 +53,7 @@
       extraOptions = [ ];
 
       cmd = [ "server" "--quick-init" "0.0.0.0:8000" ];
+      # cmd = ["init"];
     };
 
     "sonic" = {

@@ -13,9 +13,10 @@ in
         options = (lib.attrsets.foldlAttrs
           (acc: servName: servDef:
             acc // {
-              "${servName}" = utils.mkServiceOptions servName servDef; 
+              "${servName}" = utils.mkServiceOptions servName servDef;
             })
-          {} servDefs);
+          { }
+          servDefs);
       };
     };
 
@@ -43,19 +44,20 @@ in
     let
       enabledServices = lib.filterAttrs (name: value: value.enable != false) config.services.gallipedal.services;
 
-      lowestKey = attrSet: let
-        # Extract the keys and sort them alphabetically
-        sortedKeys = builtins.attrNames attrSet;
-      in
+      lowestKey = attrSet:
+        let
+          # Extract the keys and sort them alphabetically
+          sortedKeys = builtins.attrNames attrSet;
+        in
         # Return the key corresponding to the alphabetically first key
         builtins.head sortedKeys;
 
-      toProperCase = str: 
+      toProperCase = str:
         let
           lowercaseStr = lib.strings.toLower str;
           replacedStr = builtins.replaceStrings [ "_" ] [ "-" ] lowercaseStr;
         in
-          replacedStr;
+        replacedStr;
 
       internalProxyRules =
         if builtins.hasAttr "internalRules" config.services.gallipedal.proxyConf
@@ -319,6 +321,11 @@ in
                   (builtins.hasAttr "cmd" conDef)
                   conDef.cmd;
 
+                entrypoint =
+                  if (builtins.hasAttr "entrypoint" conDef)
+                  then conDef.entrypoint
+                  else null;
+
                 #######################################
                 # Labels
                 #######################################
@@ -430,13 +437,14 @@ in
 
                   # Add any secrets
                   lib.lists.optionals (builtins.hasAttr "secrets" conDef)
-                    (lib.attrsets.mapAttrsToList 
+                    (lib.attrsets.mapAttrsToList
                       (secretName: secretDef:
                         let
                           secretAttrs = mapSecretAttrs servName conName secretName secretDef;
                         in
-                          "--secret=${secretAttrs.secretProperName},type=env,target=${secretAttrs.secretEnvName}"
-                      ) conDef.secrets) ++
+                        "--secret=${secretAttrs.secretProperName},type=env,target=${secretAttrs.secretEnvName}"
+                      )
+                      conDef.secrets) ++
 
                   # Connect to proxy network
                   lib.lists.optionals
