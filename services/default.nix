@@ -15,6 +15,7 @@
   "invidious" = import ./invidious;
   "jellyfin" = import ./jellyfin;
   "monitoring" = import ./monitoring;
+  "nocodb" = import ./nocodb;
   "obsidian-remote" = import ./obsidian-remote;
   # "onlyoffice" = import ./onlyoffice;
   "owntracks" = import ./owntracks;
