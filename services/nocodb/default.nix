@@ -30,7 +30,7 @@
       dependsOn = [ "nocodb-root_db" ];
 
       extraOptions = [
-        
+
       ];
     };
     "root_db" = {
@@ -49,9 +49,15 @@
           volumeType = "directory";
         }
       ];
+      ports = [
+        {
+          containerPort = "5432";
+          protocol = "tcp";
+        }
+      ];
 
       extraOptions = [
-        
+
       ];
     };
   };
