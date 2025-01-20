@@ -317,6 +317,8 @@ in
               "${servName}-${conName}" = {
                 image = conDef.image;
 
+                user = conDef.containerUser;
+
                 cmd = lib.lists.optionals
                   (builtins.hasAttr "cmd" conDef)
                   conDef.cmd;
@@ -419,9 +421,9 @@ in
                       in
                       if builtins.hasAttr "mountOptions" volDef
                       then
-                        "${volAttrs.varPath}:${containerPath}:${volDef.mountOptions},U"
+                        "${volAttrs.varPath}:${containerPath}:${volDef.mountOptions}"
                       else
-                        "${volAttrs.varPath}:${containerPath}:U"
+                        "${volAttrs.varPath}:${containerPath}"
                     )
                     conDef.volumes);
 
@@ -463,7 +465,6 @@ in
                   [
                     "--network-alias=${conName}"
                     "--network=${servName}-internal"
-                    "--userns=auto"
                   ];
 
                 dependsOn = lib.mkIf (builtins.hasAttr "dependsOn" conDef) conDef.dependsOn;
@@ -485,51 +486,7 @@ in
           isSystemUser = true;
           group = "selfhosting";
         };
-
-        "containers" = {
-          isSystemUser = true;
-          group = "containers";
-
-          subUidRanges = [{
-            count = 2147483647;
-            startUid = 2147483648;
-          }];
-          subGidRanges = [{
-            count = 2147483647;
-            startGid = 2147483647;
-          }];
-        };
       };
-
-
-      # Define tmpfiles for each container
-      systemd.tmpfiles.rules =
-        (reduceContainers (acc: servName: servDef: conName: conDef: (
-          acc ++ [
-            "d /var/lib/selfhosted/${servName}/${conName} 0770 containers containers"
-          ] ++ lib.lists.optionals (builtins.hasAttr "volumes" conDef) (lib.foldlAttrs
-            (acc: containerPath: volDef:
-              let
-                volAttrs = mapVolumeAttrs servName conName containerPath volDef;
-              in
-              acc ++ lib.lists.optionals (!volAttrs.isSystemPath) [
-                # "d ${volAttrs.hostDir}"
-                "A+ ${volDef.hostPath} user:containers:${volAttrs.faclPerms}"
-                "A+ ${volDef.hostPath} group:containers:${volAttrs.faclPerms}"
-              ] ++ lib.lists.optionals (builtins.hasAttr "extraPerms" volDef) (
-                (lib.lists.foldl
-                  (acc: extraPerms:
-                    acc ++ [ "Z ${volDef.hostPath}/${extraPerms.relPath} ${extraPerms.permissions} - - " ])
-                  [ ]
-                  volDef.extraPerms)
-              )
-            ) [ ]
-            conDef.volumes
-          )
-        )
-        )) [ ]
-          enabledServices;
-
 
       systemd.services =
         # Define mounts for each container

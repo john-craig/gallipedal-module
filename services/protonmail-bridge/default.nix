@@ -11,6 +11,17 @@
           containerPath = "/vol/config";
           mountOptions = "rw";
           volumeType = "directory";
+
+          extraPerms = [
+            {
+              relPath = "metadata";
+              permissions = "777";
+            }
+            {
+              relPath = "email";
+              permissions = "777";
+            }
+          ];
         }
         {
           containerPath = "/vol/mail";
@@ -21,6 +32,13 @@
           containerPath = "/vol/secrets";
           mountOptions = "rw";
           volumeType = "directory";
+
+          extraPerms = [
+            {
+              relPath = ".";
+              permissions = "777";
+            }
+          ];
         }
       ];
 

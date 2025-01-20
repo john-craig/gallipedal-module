@@ -48,6 +48,8 @@
         {
           hostname = "syncthing.chiliahedron.wtf";
 
+          containerPort = "8384";
+
           external = true;
           internal = true;
         }

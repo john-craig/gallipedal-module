@@ -2,6 +2,7 @@
   containers = {
     "grafana" = {
       image = "grafana/grafana-oss";
+
       volumes = [
         {
           containerPath = "/var/lib/grafana";

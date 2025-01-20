@@ -110,6 +110,11 @@ rec {
       default = conDef.image;
     };
 
+    containerUser = lib.mkOption {
+      type = lib.types.str;
+      default = "root:root";
+    };
+
     extraLabels = lib.mkOption {
       type = lib.types.attrs;
       default =
