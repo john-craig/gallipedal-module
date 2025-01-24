@@ -16,6 +16,7 @@
   "jellyfin" = import ./jellyfin;
   "monitoring" = import ./monitoring;
   "nocodb" = import ./nocodb;
+  "n8n" = import ./n8n;
   "obsidian-remote" = import ./obsidian-remote;
   # "onlyoffice" = import ./onlyoffice;
   "owntracks" = import ./owntracks;

@@ -14,6 +14,8 @@
           containerPath = "/config";
           mountOptions = "rw";
           volumeType = "directory";
+          volumeOwner = "1000";
+          volumeGroup = "1000";
         }
       ];
 
@@ -50,16 +52,22 @@
           containerPath = "/config";
           mountOptions = "rw";
           volumeType = "directory";
+          volumeOwner = "1000";
+          volumeGroup = "1000";
         }
         {
           containerPath = "/movies";
           mountOptions = "rw";
           volumeType = "directory";
+          volumeOwner = "1000";
+          volumeGroup = "1000";
         }
         {
           containerPath = "/downloads/radarr";
           mountOptions = "rw";
           volumeType = "directory";
+          volumeOwner = "1000";
+          volumeGroup = "1000";
         }
       ];
 
@@ -97,16 +105,22 @@
           containerPath = "/config";
           mountOptions = "rw";
           volumeType = "directory";
+          volumeOwner = "1000";
+          volumeGroup = "1000";
         }
         {
           containerPath = "/tv";
           mountOptions = "rw";
           volumeType = "directory";
+          volumeOwner = "1000";
+          volumeGroup = "1000";
         }
         {
           containerPath = "/downloads/sonarr";
           mountOptions = "rw";
           volumeType = "directory";
+          volumeOwner = "1000";
+          volumeGroup = "1000";
         }
       ];
 
@@ -150,6 +164,8 @@
           containerPath = "/data";
           mountOptions = "rw";
           volumeType = "directory";
+          volumeOwner = "1000";
+          volumeGroup = "1000";
         }
       ];
 

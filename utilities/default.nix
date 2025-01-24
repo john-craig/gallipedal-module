@@ -60,6 +60,26 @@ rec {
               example = "directory";
             };
 
+            volumeOwner = lib.mkOption {
+              type = lib.types.str;
+              default =
+                if builtins.hasAttr "volumeOwner" volumeDef
+                then "${volumeDef.volumeOwner}"
+                else "root";
+              description = "The owner of the volume. Note: currently, the hostpath will be chown'd to this.";
+              example = "1001";
+            };
+
+            volumeGroup = lib.mkOption {
+              type = lib.types.str;
+              default =
+                if builtins.hasAttr "volumeGroup" volumeDef
+                then "${volumeDef.volumeGroup}"
+                else "root";
+              description = "The group of the volume. Note: currently, the hostpath will be chown'd to this.";
+              example = "1001";
+            };
+
             extraPerms = lib.mkOption {
               description = "A list of paths relative to this volume mount point to which specified permissions should be applied.";
               default =

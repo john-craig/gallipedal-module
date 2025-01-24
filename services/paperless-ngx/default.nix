@@ -28,21 +28,29 @@
           containerPath = "/usr/src/paperless/data";
           mountOptions = "rw";
           volumeType = "directory";
+          volumeOwner = "1000";
+          volumeGroup = "1000";
         }
         {
           containerPath = "/usr/src/paperless/media";
           mountOptions = "rw";
           volumeType = "directory";
+          volumeOwner = "1000";
+          volumeGroup = "1000";
         }
         {
           containerPath = "/usr/src/paperless/export";
           mountOptions = "rw";
           volumeType = "directory";
+          volumeOwner = "1000";
+          volumeGroup = "1000";
         }
         {
           containerPath = "/usr/src/paperless/consume";
           mountOptions = "rw";
           volumeType = "directory";
+          volumeOwner = "1000";
+          volumeGroup = "1000";
         }
       ];
 

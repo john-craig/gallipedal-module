@@ -295,7 +295,7 @@ in
       environment.systemPackages = [
         pkgs.acl
         pkgs.gnugrep
-        pkgs.bindfs
+        # pkgs.bindfs
       ];
 
       virtualisation.podman = {
@@ -307,6 +307,34 @@ in
           dns_enabled = true;
         };
       };
+
+      # Define tmpfiles for each container
+      systemd.tmpfiles.rules =
+        (reduceContainers (acc: servName: servDef: conName: conDef: (
+          acc ++ [
+            "d /var/lib/selfhosted/${servName}/${conName} 0770 root root"
+          ] ++ lib.lists.optionals (builtins.hasAttr "volumes" conDef) (lib.attrsets.foldlAttrs
+            (acc: conPath: volDef:
+              let
+                volAttrs = mapVolumeAttrs servName conName conPath volDef;
+              in
+              acc ++ lib.lists.optionals (!volAttrs.isSystemPath) [
+                "d ${volAttrs.hostDir} 0770 ${volDef.volumeOwner} ${volDef.volumeGroup}" # Create directory
+                "Z ${volAttrs.hostDir} 0770 ${volDef.volumeOwner} ${volDef.volumeGroup}" # Set modes if it doesn't exist
+                "A ${volAttrs.hostDir} mask::rwx" # Adjust the mask
+              ] ++ lib.lists.optionals (builtins.hasAttr "extraPerms" volDef) (
+                (lib.lists.foldl
+                  (acc: extraPerms:
+                    acc ++ [ "Z ${volDef.hostPath}/${extraPerms.relPath} ${extraPerms.permissions} - - " ])
+                  [ ]
+                  volDef.extraPerms)
+              )
+            ) [ ]
+            conDef.volumes
+          )
+        )
+        )) [ ]
+          enabledServices;
 
       virtualisation.oci-containers.backend = "podman";
 

@@ -25,13 +25,15 @@
           containerPath = "/data";
           mountOptions = "rw";
           volumeType = "directory";
+          volumeOwner = "1000";
+          volumeGroup = "1000";
 
-          extraPerms = [
-            {
-              relPath = ".";
-              permissions = "777";
-            }
-          ];
+          # extraPerms = [
+          #   {
+          #     relPath = ".";
+          #     permissions = "777";
+          #   }
+          # ];
         }
       ];
       ports = [

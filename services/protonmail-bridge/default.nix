@@ -11,34 +11,39 @@
           containerPath = "/vol/config";
           mountOptions = "rw";
           volumeType = "directory";
+          volumeOwner = "911";
+          volumeGroup = "911";
 
-          extraPerms = [
-            {
-              relPath = "metadata";
-              permissions = "777";
-            }
-            {
-              relPath = "email";
-              permissions = "777";
-            }
-          ];
+          # extraPerms = [
+          #   {
+          #     relPath = "metadata";
+          #     permissions = "777";
+          #   }
+          #   {
+          #     relPath = "email";
+          #     permissions = "777";
+          #   }
+          # ];
         }
         {
           containerPath = "/vol/mail";
           mountOptions = "rw";
           volumeType = "directory";
+          volumeOwner = "911";
+          volumeGroup = "911";
         }
         {
           containerPath = "/vol/secrets";
           mountOptions = "rw";
           volumeType = "directory";
-
-          extraPerms = [
-            {
-              relPath = ".";
-              permissions = "777";
-            }
-          ];
+          volumeOwner = "911";
+          volumeGroup = "911";
+          # extraPerms = [
+          #   {
+          #     relPath = ".";
+          #     permissions = "777";
+          #   }
+          # ];
         }
       ];
 
