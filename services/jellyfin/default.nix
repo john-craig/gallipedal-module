@@ -12,11 +12,15 @@
           containerPath = "/cache";
           mountOptions = "rw";
           volumeType = "directory";
+          volumeOwner = "1000";
+          volumeGroup = "1000";
         }
         {
           containerPath = "/config";
           mountOptions = "rw";
           volumeType = "directory";
+          volumeOwner = "1000";
+          volumeGroup = "1000";
 
           extraPerms = [
             {

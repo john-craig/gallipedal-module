@@ -15,11 +15,15 @@
           containerPath = "/config";
           mountOptions = "rw";
           volumeType = "directory";
+          volumeOwner = "1000";
+          volumeGroup = "1000";
         }
         {
           containerPath = "/vaults/main";
           mountOptions = "rw";
           volumeType = "directory";
+          volumeOwner = "1000";
+          volumeGroup = "1000";
         }
       ];
 
