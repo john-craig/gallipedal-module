@@ -7,6 +7,8 @@
           containerPath = "/data";
           mountOptions = "rw";
           volumeType = "directory";
+          volumeOwner = "999";
+          volumeGroup = "999";
         }
       ];
     };

@@ -9,6 +9,7 @@
   "gitea" = import ./gitea;
   "gotify" = import ./gotify;
   "grocy" = import ./grocy;
+  "hakatime" = import ./hakatime;
   "home-assistant" = import ./home-assistant;
   "homepage" = import ./homepage;
   # "infisical" = import ./infisical;

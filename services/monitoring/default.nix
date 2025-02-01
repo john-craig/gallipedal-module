@@ -1,7 +1,7 @@
 {
   containers = {
     "grafana" = {
-      image = "grafana/grafana-oss";
+      image = "grafana/grafana-oss:11.5.0";
 
       volumes = [
         {

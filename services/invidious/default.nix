@@ -52,11 +52,12 @@
           containerPath = "/var/lib/postgresql/data";
           mountOptions = "rw";
           volumeType = "directory";
+          volumeOwner = "999";
+          volumeGroup = "999";
         }
         {
           containerPath = "/docker-entrypoint-initdb.d/init-invidious-db.sh";
           mountOptions = "rw";
-          # mountOptions = "rw,z";
           volumeType = "file";
         }
       ];
