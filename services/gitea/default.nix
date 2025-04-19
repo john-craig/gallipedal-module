@@ -22,7 +22,7 @@
 
     #       hostname = "drone.chiliahedron.wtf";
 
-    #       external = true;
+    #       external = false; # Temporarily disabled
     #       internal = true;
     #         
     #   }
@@ -85,7 +85,7 @@
 
           containerPort = "3000";
 
-          external = true;
+          external = false; # Temporarily disabled
           internal = true;
         }
       ];

@@ -32,7 +32,7 @@
       cmd = [ "--user-profiles" "/profiles" "--profile" "en" ];
       
       networks = {
-        external = true;
+        external = false; # Temporarily disabled
       };
 
       extraOptions = [ "--device=/dev/snd:/dev/snd" ];

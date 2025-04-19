@@ -26,7 +26,7 @@
         {
           hostname = "vaultwarden.chiliahedron.wtf";
 
-          external = true;
+          external = false; # Temporarily disabled
           internal = true;
         }
       ];

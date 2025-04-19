@@ -246,8 +246,7 @@ in
             proxyIdxStr
             proxyDef
             conDef
-            proxyAttrs)
-        // {
+            proxyAttrs) // {
           "traefik.http.routers.${conName}-${proxyIdxStr}-external.middlewares" = "authelia@docker";
         })
       );
@@ -267,10 +266,9 @@ in
             proxyIdxStr
             proxyDef
             conDef
-            proxyAttrs))
-        // {
+            proxyAttrs) // {
           "traefik.http.routers.${conName}-${proxyIdxStr}-internal.rule" = "Host(${proxyAttrs.hostnameStr}) && ${internalProxyRules}${proxyAttrs.prefixStr}";
-        }
+        })
       );
 
       reduceProxyDefs = servName: conName: conDef: (

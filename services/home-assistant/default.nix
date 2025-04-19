@@ -24,7 +24,7 @@
           hostname = "homeassistant.chiliahedron.wtf";
           containerPort = "8123";
 
-          external = true;
+          external = false; # Temporarily disabled
           internal = true;
         }
       ];

@@ -30,7 +30,7 @@
         {
           hostname = "prowlarr.chiliahedron.wtf";
 
-          external = true;
+          external = false; # Temporarily disabled
           internal = true;
         }
       ];
@@ -82,7 +82,7 @@
         {
           hostname = "radarr.chiliahedron.wtf";
 
-          external = true;
+          external = false; # Temporarily disabled
           internal = true;
         }
       ];
@@ -135,7 +135,7 @@
         {
           hostname = "sonarr.chiliahedron.wtf";
 
-          external = true;
+          external = false; # Temporarily disabled
           internal = true;
         }
       ];

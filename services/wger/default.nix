@@ -19,7 +19,7 @@
       ];
 
       networks = {
-        external = true;
+        external = false; # Temporarily disabled
       };
 
       dependsOn = [ "wger-wger-db" "wger-wger-cache" ];
@@ -63,7 +63,7 @@
 
           hostname = "wger.chiliahedron.wtf";
 
-          external = true;
+          external = false; # Temporarily disabled
           internal = true;
 
         }

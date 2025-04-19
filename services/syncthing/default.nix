@@ -58,7 +58,7 @@
 
           containerPort = "8384";
 
-          external = true;
+          external = false; # Temporarily disabled
           internal = true;
         }
       ];

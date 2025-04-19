@@ -20,7 +20,7 @@
         {
           hostname = "grafana.chiliahedron.wtf";
 
-          external = true;
+          external = false; # Temporarily disabled
           internal = true;
         }
       ];
@@ -52,7 +52,7 @@
         {
           hostname = "prometheus.chiliahedron.wtf";
 
-          external = true;
+          external = false; # Temporarily disabled
           internal = true;
         }
       ];
@@ -84,7 +84,7 @@
         {
           hostname = "influxdb.chiliahedron.wtf";
 
-          external = true;
+          external = false; # Temporarily disabled
           internal = true;
         }
       ];

@@ -52,7 +52,7 @@
       ];
       
       networks = {
-        external = true;
+        external = false; # Temporarily disabled
       };
     };
   };

@@ -60,7 +60,7 @@
 
           containerPort = "8096";
 
-          external = true;
+          external = false; # Temporarily disabled
           internal = true;
         }
       ];

@@ -27,7 +27,7 @@
         {
           hostname = "n8n.chiliahedron.wtf";
 
-          external = true;
+          external = false; # Temporarily disabled
           internal = true;
         }
       ];

@@ -45,7 +45,7 @@
           hostname = "freepbx.chiliahedron.wtf";
 
           internal = true;
-          external = true;
+          external = false; # Temporarily disabled
         }
       ];
 

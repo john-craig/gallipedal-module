@@ -22,7 +22,7 @@
           hostname = "invidious.chiliahedron.wtf";
           containerPort = "3001";
 
-          external = true;
+          external = false; # Temporarily disabled
           internal = true;
         }
       ];

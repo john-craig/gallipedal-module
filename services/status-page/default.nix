@@ -25,7 +25,7 @@
           hostname = "status.chiliahedron.wtf";
 
           internal = true;
-          external = true;
+          external = false; # Temporarily disabled
 
           containerPort = "80";
         }
