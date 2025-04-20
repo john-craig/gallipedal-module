@@ -143,6 +143,90 @@
       extraOptions = [ ];
     };
 
+    "lidarr" = {
+      image = "linuxserver/lidarr:latest";
+
+      environment = [
+        "PGID"
+        "PUID"
+        "TZ"
+      ];
+
+      volumes = [
+        {
+          containerPath = "/config";
+          mountOptions = "rw";
+          volumeType = "directory";
+          volumeOwner = "1000";
+          volumeGroup = "1000";
+        }
+        {
+          containerPath = "/music";
+          mountOptions = "rw";
+          volumeType = "directory";
+          volumeOwner = "1000";
+          volumeGroup = "1000";
+        }
+        {
+          containerPath = "/downloads/lidarr";
+          mountOptions = "rw";
+          volumeType = "directory";
+          volumeOwner = "1000";
+          volumeGroup = "1000";
+        }
+      ];
+
+      ports = [
+        {
+          containerPort = "8686";
+          protocol = "tcp";
+        }
+      ];
+
+      proxies = [
+        {
+          hostname = "lidarr.chiliahedron.wtf";
+
+          external = false; # Temporarily disabled
+          internal = true;
+        }
+      ];
+
+      extraOptions = [ ];
+    };
+
+    "yt-dlp-webui" = {
+      image = "marcobaobao/yt-dlp-webui";
+
+      volumes = [
+        {
+          containerPath = "/downloads";
+          mountOptions = "rw";
+          volumeType = "directory";
+          volumeOwner = "1000";
+          volumeGroup = "1000";
+        }
+      ];
+
+      ports = [
+        {
+          containerPort = "3033";
+          protocol = "tcp";
+        }
+      ];
+
+      proxies = [
+        {
+          hostname = "yt-dlp.chiliahedron.wtf";
+
+          external = false; # Temporarily disabled
+          internal = true;
+        }
+      ];
+
+      extraOptions = [ ];
+    };
+
     "resilio" = {
       image = "nimmis/resilio-sync:latest";
 
