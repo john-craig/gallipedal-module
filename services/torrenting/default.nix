@@ -195,6 +195,69 @@
       extraOptions = [ ];
     };
 
+    "lidatube" = {
+      image = "thewicklowwolf/lidatube:latest";
+
+      environment = [
+        "lidarr_address" # The URL for Lidarr. Defaults to http://192.168.1.2:8686.
+        "attempt_lidarr_import" # Attempt to import each song directly into Lidarr. Defaults to False.
+        # lidarr_api_timeout: Timeout duration for Lidarr API calls. Defaults to 120.
+        # thread_limit: Max number of threads to use. Defaults to 1.
+        # sleep_interval: Interval to sleep. Defaults to 0.
+        # fallback_to_top_result: Whether to use the top result if no match is found. Defaults to False.
+        # library_scan_on_completion: Whether to scan Lidarr Library on completion. Defaults to True.
+        # sync_schedule: Schedule times to run (comma seperated values in 24hr). Defaults to ``
+        # minimum_match_ratio: Minimum percentage for a match. Defaults to 90
+        # secondary_search: Method for secondary search (YTS or YTDLP). Defaults to YTS.
+        # preferred_codec: Preferred codec (mp3). Defaults to mp3.
+      ];
+
+      secrets = [
+        "lidarr_api_key" # The API key for Lidarr. Defaults to ``.
+      ];
+
+      volumes = [
+        {
+          containerPath = "/lidatube/config";
+          mountOptions = "rw";
+          volumeType = "directory";
+          volumeOwner = "1000";
+          volumeGroup = "1000";
+        }
+        {
+          containerPath = "/lidatube/downloads";
+          mountOptions = "rw";
+          volumeType = "directory";
+          volumeOwner = "1000";
+          volumeGroup = "1000";
+        }
+        # {
+        #   containerPath = "/etc/localtime";
+        #   mountOptions = "ro";
+        #   volumeType = "file";
+        # }
+      ];
+
+      ports = [
+        {
+          containerPort = "5000";
+          protocol = "tcp";
+        }
+      ];
+
+      proxies = [
+        {
+          hostname = "lidatube.chiliahedron.wtf";
+
+          external = false; # Temporarily disabled
+          internal = true;
+        }
+      ];
+
+      extraOptions = [ ];
+    };
+
+
     "yt-dlp-webui" = {
       image = "marcobaobao/yt-dlp-webui";
 
