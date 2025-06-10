@@ -57,8 +57,8 @@
           containerPath = "/var/lib/postgresql/data";
           mountOptions = "rw";
           volumeType = "directory";
-          volumeOwner = "999";
-          volumeGroup = "999";
+          volumeOwner = "1000";
+          volumeGroup = "1000";
         }
       ];
     };
