@@ -1,5 +1,143 @@
 {
   containers = {
+    # "protonwire" = {
+    #   image = "ghcr.io/tprasadtp/protonwire:latest";
+
+    #   secrets = [
+    #     "WIREGUARD_PRIVATE_KEY"
+    #   ];
+
+    #   environment = [
+    #     "PROTONVPN_SERVER"
+    #     "KILL_SWITCH"
+    #     "DEBUG"
+    #   ];
+
+    #   volumes = [ ];
+
+    #   ports = [
+    #     { # Prowlarr
+    #       containerPort = "9696";
+    #       protocol = "tcp";
+    #     }
+    #     { # Radarr
+    #       containerPort = "7878";
+    #       protocol = "tcp";
+    #     }
+    #     { # Sonarr
+    #       containerPort = "8989";
+    #       protocol = "tcp";
+    #     }
+    #     { # Lidarr
+    #       containerPort = "8686";
+    #       protocol = "tcp";
+    #     }
+    #   ];
+
+    #   proxies = [
+    #     {
+    #       hostname = "prowlarr.chiliahedron.wtf";
+    #       containerPort = "9696";
+    #       external = false; # Temporarily disabled
+    #       internal = true;
+    #     }
+    #     {
+    #       hostname = "radarr.chiliahedron.wtf";
+    #       containerPort = "7878";
+    #       external = false; # Temporarily disabled
+    #       internal = true;
+    #     }
+    #     {
+    #       hostname = "sonarr.chiliahedron.wtf";
+    #       containerPort = "8989";
+    #       external = false; # Temporarily disabled
+    #       internal = true;
+    #     }
+    #     {
+    #       hostname = "lidarr.chiliahedron.wtf";
+    #       containerPort = "8686";
+    #       external = false; # Temporarily disabled
+    #       internal = true;
+    #     }
+    #   ];
+
+    #   extraOptions = [
+    #     "--network=bridge"
+    #     "--cap-add=NET_ADMIN"
+    #     "--sysctl=net.ipv4.conf.all.rp_filter=2"
+    #     "--tmpfs=/tmp"
+    #   ];
+    # };
+
+    "wireguard" = {
+      image = "ghcr.io/wfg/wireguard";
+
+      environment = [
+        "ALLOWED_SUBNETS"
+      ];
+
+      volumes = [ {
+        containerPath = "/etc/wireguard";
+        mountOptions = "rw";
+        volumeType = "directory";
+        volumeOwner = "1000";
+        volumeGroup = "1000";
+      } ];
+
+      ports = [
+        { # Prowlarr
+          containerPort = "9696";
+          protocol = "tcp";
+        }
+        { # Radarr
+          containerPort = "7878";
+          protocol = "tcp";
+        }
+        { # Sonarr
+          containerPort = "8989";
+          protocol = "tcp";
+        }
+        { # Lidarr
+          containerPort = "8686";
+          protocol = "tcp";
+        }
+      ];
+
+      proxies = [
+        {
+          hostname = "prowlarr.chiliahedron.wtf";
+          containerPort = "9696";
+          external = false; # Temporarily disabled
+          internal = true;
+        }
+        {
+          hostname = "radarr.chiliahedron.wtf";
+          containerPort = "7878";
+          external = false; # Temporarily disabled
+          internal = true;
+        }
+        {
+          hostname = "sonarr.chiliahedron.wtf";
+          containerPort = "8989";
+          external = false; # Temporarily disabled
+          internal = true;
+        }
+        {
+          hostname = "lidarr.chiliahedron.wtf";
+          containerPort = "8686";
+          external = false; # Temporarily disabled
+          internal = true;
+        }
+      ];
+
+      extraOptions = [
+        # "--network=bridge"
+        "--cap-add=NET_ADMIN"
+        "--sysctl=net.ipv4.conf.all.rp_filter=2"
+        # "--tmpfs=/tmp"
+      ];
+
+    };
     "prowlarr" = {
       image = "lscr.io/linuxserver/prowlarr:latest";
 
@@ -19,21 +157,7 @@
         }
       ];
 
-      ports = [
-        {
-          containerPort = "9696";
-          protocol = "tcp";
-        }
-      ];
-
-      proxies = [
-        {
-          hostname = "prowlarr.chiliahedron.wtf";
-
-          external = false; # Temporarily disabled
-          internal = true;
-        }
-      ];
+      ports = [ ];
 
       extraOptions = [ ];
     };
@@ -71,25 +195,10 @@
         }
       ];
 
-      ports = [
-        {
-          containerPort = "7878";
-          protocol = "tcp";
-        }
-      ];
-
-      proxies = [
-        {
-          hostname = "radarr.chiliahedron.wtf";
-
-          external = false; # Temporarily disabled
-          internal = true;
-        }
-      ];
+      ports = [ ];
 
       extraOptions = [ ];
     };
-
 
     "sonarr" = {
       image = "linuxserver/sonarr:latest";
@@ -124,21 +233,7 @@
         }
       ];
 
-      ports = [
-        {
-          containerPort = "8989";
-          protocol = "tcp";
-        }
-      ];
-
-      proxies = [
-        {
-          hostname = "sonarr.chiliahedron.wtf";
-
-          external = false; # Temporarily disabled
-          internal = true;
-        }
-      ];
+      ports = [ ];
 
       extraOptions = [ ];
     };
@@ -176,21 +271,7 @@
         }
       ];
 
-      ports = [
-        {
-          containerPort = "8686";
-          protocol = "tcp";
-        }
-      ];
-
-      proxies = [
-        {
-          hostname = "lidarr.chiliahedron.wtf";
-
-          external = false; # Temporarily disabled
-          internal = true;
-        }
-      ];
+      ports = [ ];
 
       extraOptions = [ ];
     };
@@ -257,7 +338,6 @@
       extraOptions = [ ];
     };
 
-
     "yt-dlp-webui" = {
       image = "marcobaobao/yt-dlp-webui";
 
@@ -286,48 +366,6 @@
           internal = true;
         }
       ];
-
-      extraOptions = [ ];
-    };
-
-    "resilio" = {
-      image = "nimmis/resilio-sync:latest";
-
-      environment = [
-        "RSLSYNC_TRASH_TIME"
-        "RSLSYNC_SIZE"
-        "PGID"
-        "PUID"
-        "TZ"
-        "STORAGE_DIR"
-      ];
-
-      secrets = [
-        "RSLSYNC_SECRET"
-      ];
-
-      volumes = [
-        {
-          containerPath = "/data";
-          mountOptions = "rw";
-          volumeType = "directory";
-          volumeOwner = "1000";
-          volumeGroup = "1000";
-        }
-      ];
-
-      ports = [
-        {
-          containerPort = "8888";
-          protocol = "tcp";
-        }
-        {
-          containerPort = "33333";
-          protocol = "tcp";
-        }
-      ];
-
-      proxies = [ ];
 
       extraOptions = [ ];
     };
