@@ -1,7 +1,7 @@
 {
   containers = {
     "invidious" = {
-      image = "quay.io/invidious/invidious:latest";
+      image = "quay.io/invidious/invidious:master";
       volumes = [
         {
           containerPath = "/invidious/config/config.yml";
