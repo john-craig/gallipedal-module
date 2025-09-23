@@ -239,7 +239,7 @@ in
         (lib.attrsets.optionalAttrs
           (builtins.hasAttr "external" proxyDef &&
             proxyDef.external)
-          (mkCommonProxyLabels "external"
+          ((mkCommonProxyLabels "external"
             servName
             conName
             proxyIdx
@@ -248,7 +248,7 @@ in
             conDef
             proxyAttrs) // {
           "traefik.http.routers.${conName}-${proxyIdxStr}-external.middlewares" = "authelia@docker";
-        })
+        }))
       );
 
       mkInternalProxyLabels = servName: conName: proxyIdx: proxyDef: conDef: (

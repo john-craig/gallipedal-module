@@ -25,8 +25,8 @@
       proxies = [
         {
           hostname = "penpot.chiliahedron.wtf";
-          external = true;
-          internal = false;
+          external = false;
+          internal = true;
         }
       ];
     };

@@ -131,10 +131,8 @@
       ];
 
       extraOptions = [
-        # "--network=bridge"
         "--cap-add=NET_ADMIN"
         "--sysctl=net.ipv4.conf.all.rp_filter=2"
-        # "--tmpfs=/tmp"
       ];
 
     };
