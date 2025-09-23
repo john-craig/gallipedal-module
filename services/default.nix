@@ -22,6 +22,7 @@
   # "onlyoffice" = import ./onlyoffice;
   "owntracks" = import ./owntracks;
   "paperless-ngx" = import ./paperless-ngx;
+  "penpot" = import ./penpot;
   "protonmail-bridge" = import ./protonmail-bridge;
   "registry" = import ./registry;
   "rhasspy-base" = import ./rhasspy-base;
