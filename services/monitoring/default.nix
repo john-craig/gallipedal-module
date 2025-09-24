@@ -16,14 +16,6 @@
           protocol = "tcp";
         }
       ];
-      proxies = [
-        {
-          hostname = "grafana.chiliahedron.wtf";
-
-          external = false; # Temporarily disabled
-          internal = true;
-        }
-      ];
 
       extraOptions = [ ];
     };
@@ -48,14 +40,6 @@
           protocol = "tcp";
         }
       ];
-      proxies = [
-        {
-          hostname = "prometheus.chiliahedron.wtf";
-
-          external = false; # Temporarily disabled
-          internal = true;
-        }
-      ];
 
       extraOptions = [ ];
     };
@@ -78,14 +62,6 @@
         {
           containerPort = "8086";
           protocol = "tcp";
-        }
-      ];
-      proxies = [
-        {
-          hostname = "influxdb.chiliahedron.wtf";
-
-          external = false; # Temporarily disabled
-          internal = true;
         }
       ];
 

@@ -23,14 +23,6 @@
           protocol = "tcp";
         }
       ];
-      proxies = [
-        {
-          hostname = "n8n.chiliahedron.wtf";
-
-          external = false; # Temporarily disabled
-          internal = true;
-        }
-      ];
 
       dependsOn = [ ];
 

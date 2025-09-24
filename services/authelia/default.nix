@@ -17,13 +17,6 @@
           protocol = "tcp";
         }
       ];
-      proxies = [
-        {
-          hostname = "authelia.chiliahedron.wtf";
-
-          public = true;
-        }
-      ];
 
       # Labels for Traefik to use as a Proxy
       extraLabels = {

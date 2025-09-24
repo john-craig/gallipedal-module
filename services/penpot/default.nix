@@ -22,13 +22,6 @@
           protocol = "tcp";
         }
       ];
-      proxies = [
-        {
-          hostname = "penpot.chiliahedron.wtf";
-          external = false;
-          internal = true;
-        }
-      ];
     };
 
     "penpot-backend" = {

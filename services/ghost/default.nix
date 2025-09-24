@@ -59,18 +59,6 @@
       ports = [
         { containerPort = "2368"; protocol = "tcp"; }
       ];
-
-      proxies = [
-        {
-          hostnames = [
-            "ghost.chiliahedron.wtf"
-            "ghost.admin.chiliahedron.wtf"
-          ];
-
-          external = false;
-          internal = true;
-        }
-      ];
     };
 
     "db" = {
@@ -124,16 +112,6 @@
       ];
       ports = [
         { containerPort = "3000"; protocol = "tcp"; }
-      ];
-      proxies = [
-        {
-          hostnames = [
-            "ghost.chiliahedron.wtf"
-          ];
-          pathPrefix = "/.ghost/analytics";
-          external = false;
-          internal = true;
-        }
       ];
     };
 

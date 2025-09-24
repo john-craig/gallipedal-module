@@ -103,33 +103,6 @@
         }
       ];
 
-      proxies = [
-        {
-          hostname = "prowlarr.chiliahedron.wtf";
-          containerPort = "9696";
-          external = false; # Temporarily disabled
-          internal = true;
-        }
-        {
-          hostname = "radarr.chiliahedron.wtf";
-          containerPort = "7878";
-          external = false; # Temporarily disabled
-          internal = true;
-        }
-        {
-          hostname = "sonarr.chiliahedron.wtf";
-          containerPort = "8989";
-          external = false; # Temporarily disabled
-          internal = true;
-        }
-        {
-          hostname = "lidarr.chiliahedron.wtf";
-          containerPort = "8686";
-          external = false; # Temporarily disabled
-          internal = true;
-        }
-      ];
-
       extraOptions = [
         "--cap-add=NET_ADMIN"
         "--sysctl=net.ipv4.conf.all.rp_filter=2"
@@ -324,15 +297,6 @@
         }
       ];
 
-      proxies = [
-        {
-          hostname = "lidatube.chiliahedron.wtf";
-
-          external = false; # Temporarily disabled
-          internal = true;
-        }
-      ];
-
       extraOptions = [ ];
     };
 
@@ -353,15 +317,6 @@
         {
           containerPort = "3033";
           protocol = "tcp";
-        }
-      ];
-
-      proxies = [
-        {
-          hostname = "yt-dlp.chiliahedron.wtf";
-
-          external = false; # Temporarily disabled
-          internal = true;
         }
       ];
 

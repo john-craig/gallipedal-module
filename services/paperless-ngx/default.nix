@@ -63,15 +63,6 @@
         }
       ];
 
-      proxies = [
-        {
-          hostname = "paperless.chiliahedron.wtf";
-
-          external = false; # Temporarily disabled
-          internal = true;
-        }
-      ];
-
       dependsOn = [
         "paperless-ngx-broker"
       ];

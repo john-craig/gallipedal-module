@@ -17,16 +17,6 @@
         }
       ];
 
-      proxies = [
-        {
-          hostname = "invidious.chiliahedron.wtf";
-          containerPort = "3001";
-
-          external = false; # Temporarily disabled
-          internal = true;
-        }
-      ];
-
       dependsOn = [
         "invidious-invidious-db"
       ];

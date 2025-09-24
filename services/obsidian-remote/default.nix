@@ -34,15 +34,6 @@
         }
       ];
 
-      proxies = [
-        {
-          hostname = "obsidian.chiliahedron.wtf";
-
-          external = false; # Temporarily disabled
-          internal = true;
-        }
-      ];
-
       extraOptions = [ ];
     };
   };

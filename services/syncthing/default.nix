@@ -52,16 +52,6 @@
           protocol = "udp";
         }
       ];
-      proxies = [
-        {
-          hostname = "syncthing.chiliahedron.wtf";
-
-          containerPort = "8384";
-
-          external = false; # Temporarily disabled
-          internal = true;
-        }
-      ];
 
       extraOptions = [ ];
     };

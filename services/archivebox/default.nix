@@ -43,15 +43,6 @@
         }
       ];
 
-      proxies = [
-        {
-          hostname = "archivebox.chiliahedron.wtf";
-
-          external = false; # Temporarily disabled
-          internal = true;
-        }
-      ];
-
       extraOptions = [ ];
 
       cmd = [ "server" "--quick-init" "0.0.0.0:8000" ];

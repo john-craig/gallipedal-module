@@ -33,15 +33,6 @@
         }
       ];
       
-      proxies = [
-        {
-          hostname = "audiobookshelf.chiliahedron.wtf";
-
-          external = false; # Temporarily disabled
-          internal = true;
-        }
-      ];
-      
       extraOptions = [ ];
     };        
   };

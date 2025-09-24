@@ -18,14 +18,6 @@
           protocol = "tcp";
         }
       ];
-      proxies = [
-        {
-          hostname = "nocodb.chiliahedron.wtf";
-
-          external = false; # Temporarily disabled
-          internal = true;
-        }
-      ];
 
       dependsOn = [ "nocodb-root_db" ];
 

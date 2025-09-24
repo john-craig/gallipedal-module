@@ -29,15 +29,6 @@
         }
       ];
 
-      proxies = [
-        {
-          hostname = "hakatime.chiliahedron.wtf";
-
-          external = false; # Temporarily disabled
-          internal = true;
-        }
-      ];
-
       extraOptions = [ ];
     };
 

@@ -113,7 +113,9 @@ in
       containerHasLowPort = conDef: (
         lib.attrsets.foldlAttrs
           (acc: conPort: portDef:
-            acc || (lib.strings.toInt portDef.hostPort) < 1024
+            acc || (if (portDef.hostPort != null)
+              then ((lib.strings.toInt portDef.hostPort) < 1024)
+              else false)
           )
           false
           (lib.attrsets.optionalAttrs
@@ -423,17 +425,17 @@ in
                 #######################################
                 # Ports
                 #######################################
-                ports = lib.lists.optionals
+                ports = (lib.lists.optionals
                   (builtins.hasAttr "ports" conDef)
-                  (lib.mapAttrsToList
-                    (containerPort: portDef:
-                      if builtins.hasAttr "protocol" portDef
-                      then
-                        "${portDef.hostPort}:${containerPort}/${portDef.protocol}"
-                      else
-                        "${portDef.hostPort}:${containerPort}/tcp"
-                    )
-                    conDef.ports);
+                  (lib.attrsets.foldlAttrs
+                    (acc: containerPort: portDef:
+                      acc ++ lib.lists.optionals (portDef.hostPort != null)
+                      [ (if builtins.hasAttr "protocol" portDef
+                        then
+                          "${portDef.hostPort}:${containerPort}/${portDef.protocol}"
+                        else
+                          "${portDef.hostPort}:${containerPort}/tcp") ]
+                    ) [] conDef.ports));
 
                 #######################################
                 # Volumes

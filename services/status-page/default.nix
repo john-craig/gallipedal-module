@@ -19,17 +19,6 @@
           # ];
         }
       ];
-
-      proxies = [
-        {
-          hostname = "status.chiliahedron.wtf";
-
-          internal = true;
-          external = false; # Temporarily disabled
-
-          containerPort = "80";
-        }
-      ];
     };
   };
 }

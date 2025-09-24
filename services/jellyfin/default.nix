@@ -54,17 +54,6 @@
         }
       ];
 
-      proxies = [
-        {
-          hostname = "jellyfin.chiliahedron.wtf";
-
-          containerPort = "8096";
-
-          external = false; # Temporarily disabled
-          internal = true;
-        }
-      ];
-
       extraOptions = [ ];
     };
   };

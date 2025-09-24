@@ -78,17 +78,6 @@
           protocol = "tcp";
         }
       ];
-
-      proxies = [
-        {
-          hostname = "gitea.chiliahedron.wtf";
-
-          containerPort = "3000";
-
-          external = false; # Temporarily disabled
-          internal = true;
-        }
-      ];
     };
 
   };

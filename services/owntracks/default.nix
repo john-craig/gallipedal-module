@@ -29,14 +29,6 @@
           protocol = "tcp";
         }
       ];
-      proxies = [
-        {
-          hostname = "owntracks.chiliahedron.wtf";
-
-          external = false; # Temporarily disabled
-          internal = true;
-        }
-      ];
 
       extraOptions = [ ];
     };

@@ -15,12 +15,6 @@
           protocol = "tcp";
         }
       ];
-      proxies = [
-        {
-          hostname = "john-craig.dev";
-          public = true;
-        }
-      ];
 
       extraOptions = [ ];
     };

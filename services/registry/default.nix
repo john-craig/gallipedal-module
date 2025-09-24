@@ -18,15 +18,6 @@
         }
       ];
 
-      proxies = [
-        {
-          hostname = "registry.chiliahedron.wtf";
-
-          external = false; # Temporarily disabled
-          internal = true;
-        }
-      ];
-
       extraOptions = [ ];
     };
   };

@@ -19,7 +19,8 @@ rec {
         "${portDef.containerPort}" = lib.mkOption {
           type = mkSubmodule {
             hostPort = lib.mkOption {
-              type = lib.types.str;
+              type = lib.types.nullOr lib.types.str;
+              default = null;
               description = "The host port to be used for mapping";
               example = "8080";
             };
@@ -30,6 +31,10 @@ rec {
               description = "The protocol for the port";
               example = "tcp";
             };
+          };
+          default = {
+            hostPort = null;
+            protocol = "${portDef.protocol}";
           };
         };
       })
@@ -166,7 +171,6 @@ rec {
         then conDef.dependsOn
         else [ ];
     };
-
 
     # TODO: This will be handled in a separate module later
     proxies = lib.mkOption {

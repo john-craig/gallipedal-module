@@ -18,14 +18,6 @@
           protocol = "tcp";
         }
       ];
-      proxies = [
-        {
-          hostname = "gotify.chiliahedron.wtf";
-
-          external = false; # Temporarily disabled
-          internal = true;
-        }
-      ];
 
       extraOptions = [
         "--network-alias=gotify"

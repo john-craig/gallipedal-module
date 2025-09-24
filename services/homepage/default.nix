@@ -15,14 +15,6 @@
           protocol = "tcp";
         }
       ];
-      proxies = [
-        {
-          hostname = "chiliahedron.wtf";
-
-          external = false; # Temporarily disabled
-          internal = true;
-        }
-      ];
 
       extraOptions = [ ];
     };

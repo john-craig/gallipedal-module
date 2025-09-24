@@ -22,15 +22,6 @@
         }
       ];
 
-      proxies = [
-        {
-          hostname = "vaultwarden.chiliahedron.wtf";
-
-          external = false; # Temporarily disabled
-          internal = true;
-        }
-      ];
-
       extraOptions = [ ];
     };
   };
