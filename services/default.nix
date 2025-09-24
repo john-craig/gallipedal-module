@@ -6,6 +6,7 @@
   "code-server" = import ./code-server;
   "dev-blog" = import ./dev-blog;
   # "freepbx" = import ./freepbx;
+  "ghost" = import ./ghost;
   "gitea" = import ./gitea;
   "gotify" = import ./gotify;
   "grocy" = import ./grocy;
