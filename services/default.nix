@@ -30,6 +30,7 @@
   "rhasspy-satellite" = import ./rhasspy-satellite;
   "timeflip-tracker" = import ./timeflip-tracker;
   "status-page" = import ./status-page;
+  "suivi-bourse" = import ./suivi-bourse;
   "syncthing" = import ./syncthing;
   "torrenting" = import ./torrenting;
   "vaultwarden" = import ./vaultwarden;
