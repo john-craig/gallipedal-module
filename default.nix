@@ -555,13 +555,11 @@ in
                     conDef.volumes);
                   after = [
                     "podman-network-${servName}.service"
-                    # TODO: make dependent on corresponding tmpfiles rule
-                    # "podman-mount-${servName}-${conName}.service"
+                    "systemd-tmpfiles-setup.service"
                   ];
                   requires = [
                     "podman-network-${servName}.service"
-                    # TODO: make dependent on corresponding tmpfiles rule
-                    # "podman-mount-${servName}-${conName}.service"
+                    "systemd-tmpfiles-setup.service"
                   ];
                   partOf = [
                     "podman-compose-${servName}-root.target"
