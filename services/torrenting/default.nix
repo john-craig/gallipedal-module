@@ -247,6 +247,50 @@
       extraOptions = [ ];
     };
 
+    "bazarr" = {
+      image = "linuxserver/bazarr:latest";
+
+      environment = [
+        "PGID"
+        "PUID"
+        "TZ"
+      ];
+
+      volumes = [
+        {
+          containerPath = "/config";
+          mountOptions = "rw";
+          volumeType = "directory";
+          volumeOwner = "1000";
+          volumeGroup = "1000";
+        }
+        {
+          containerPath = "/movies";
+          mountOptions = "rw";
+          volumeType = "directory";
+          volumeOwner = "1000";
+          volumeGroup = "1000";
+        }
+        {
+          containerPath = "/tv";
+          mountOptions = "rw";
+          volumeType = "directory";
+          volumeOwner = "1000";
+          volumeGroup = "1000";
+        }
+      ];
+
+      ports = [ 
+        { # Bazarr
+          containerPort = "6767";
+          protocol = "tcp";
+        }
+      ];
+
+      extraOptions = [ ];
+    };
+
+
     "lidatube" = {
       image = "thewicklowwolf/lidatube:latest";
 
