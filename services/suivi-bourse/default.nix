@@ -12,11 +12,14 @@
           volumeGroup = "1000";
         }
       ];
-      environment = [ "SB_SCRAPING_INTERVAL" ];
-      ports = [ {
+      environment = [
+        "SB_SCRAPING_INTERVAL"
+        "LOG_LEVEL"
+      ];
+      ports = [{
         containerPort = "8081";
         protocol = "tcp";
-      } ];
+      }];
 
       extraOptions = [ ];
     };
