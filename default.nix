@@ -371,8 +371,9 @@ in
                     "traefik.enable" = "true";
                     "traefik.docker.network" = "${reverseProxyNetwork}";
                     "traefik.http.routers.${conName}-external.entryPoints" = "websecure";
-                    "traefik.http.routers.${conName}-external.middlewares" = "authelia@docker";
+                    "traefik.http.routers.${conName}-external.middlewares" = "authelia";
                     "traefik.http.routers.${conName}-external.rule" = "Host(`${conDef.proxy.hostname}`)";
+                    "traefik.http.routers.${conName}-external.priority" = 10;
                     "traefik.http.routers.${conName}-external.tls" = "true";
                     "traefik.http.routers.${conName}-external.tls.certresolver" = "${proxyTLSResolver}";
                     "traefik.http.services.${conName}.loadbalancer.server.port" = lowestKey conDef.ports;
@@ -387,6 +388,7 @@ in
                     "traefik.docker.network" = "${reverseProxyNetwork}";
                     "traefik.http.routers.${conName}-internal.entryPoints" = "websecure";
                     "traefik.http.routers.${conName}-internal.rule" = "Host(`${conDef.proxy.hostname}`) && ${internalProxyRules}";
+                    "traefik.http.routers.${conName}-internal.priority" = 20;
                     "traefik.http.routers.${conName}-internal.tls" = "true";
                     "traefik.http.routers.${conName}-internal.tls.certresolver" = "${proxyTLSResolver}";
                     "traefik.http.services.${conName}.loadbalancer.server.port" = lowestKey conDef.ports;
@@ -401,6 +403,7 @@ in
                     "traefik.docker.network" = "${reverseProxyNetwork}";
                     "traefik.http.routers.${conName}-public.entryPoints" = "websecure";
                     "traefik.http.routers.${conName}-public.rule" = "Host(`${conDef.proxy.hostname}`)";
+                    "traefik.http.routers.${conName}-public.priority" = 15;
                     "traefik.http.routers.${conName}-public.tls" = "true";
                     "traefik.http.routers.${conName}-public.tls.certresolver" = "${proxyTLSResolver}";
                     "traefik.http.services.${conName}.loadbalancer.server.port" = lowestKey conDef.ports;
