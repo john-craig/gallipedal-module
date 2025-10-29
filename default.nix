@@ -24,6 +24,10 @@ in
       default = { };
       type = lib.types.submodule {
         options = {
+          authenticationMiddleware = lib.mkOption {
+            type = lib.types.str;
+          };
+
           internalRules = lib.mkOption {
             type = lib.types.str;
           };
@@ -59,6 +63,10 @@ in
         in
         replacedStr;
 
+      authMiddleware = 
+        if builtins.hasAttr "authenticationMiddleware" config.services.gallipedal.proxyConf
+        then config.services.gallipedal.proxyConf.authenticationMiddleware
+        else "";
       internalProxyRules =
         if builtins.hasAttr "internalRules" config.services.gallipedal.proxyConf
         then config.services.gallipedal.proxyConf.internalRules
@@ -249,7 +257,7 @@ in
             proxyDef
             conDef
             proxyAttrs) // {
-          "traefik.http.routers.${conName}-${proxyIdxStr}-external.middlewares" = "authelia@docker";
+          "traefik.http.routers.${conName}-${proxyIdxStr}-external.middlewares" = "${authMiddleware}";
         }))
       );
 
@@ -371,7 +379,7 @@ in
                     "traefik.enable" = "true";
                     "traefik.docker.network" = "${reverseProxyNetwork}";
                     "traefik.http.routers.${conName}-external.entryPoints" = "websecure";
-                    "traefik.http.routers.${conName}-external.middlewares" = "authelia";
+                    "traefik.http.routers.${conName}-external.middlewares" = "${authMiddleware}";
                     "traefik.http.routers.${conName}-external.rule" = "Host(`${conDef.proxy.hostname}`)";
                     "traefik.http.routers.${conName}-external.priority" = 10;
                     "traefik.http.routers.${conName}-external.tls" = "true";
