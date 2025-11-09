@@ -140,22 +140,6 @@ in
             then hostPath
             else builtins.dirOf hostPath;
 
-          # For a path to a directory, the last subdirectory in the path
-          # is used as the container base, (e.g. in /usr/bin/, `bin` would be used)
-          # For a path to a file, the the subdirectory containing the file
-          # is used as the container base, (e.g. in /usr/bin/test, `bin` would be used)
-          hostBase =
-            if (volDef.volumeType == "directory")
-            then builtins.baseNameOf hostPath
-            else builtins.baseNameOf (builtins.dirOf hostPath);
-          varHash = builtins.hashString "sha256" "${hostPath}-${conPath}";
-
-          varDir = "/var/lib/selfhosted/${servName}/${conName}/${varHash}-${hostBase}";
-          varPath =
-            if (volDef.volumeType == "directory")
-            then varDir
-            else "${varDir}/${builtins.baseNameOf hostPath}";
-
           faclPerms =
             if (
               (builtins.elemAt (lib.strings.splitString "," volDef.mountOptions) 0) == "rw"
@@ -460,9 +444,9 @@ in
                       in
                       if builtins.hasAttr "mountOptions" volDef
                       then
-                        "${volAttrs.varPath}:${containerPath}:${volDef.mountOptions}"
+                        "${volAttrs.hostPath}:${containerPath}:${volDef.mountOptions}"
                       else
-                        "${volAttrs.varPath}:${containerPath}"
+                        "${volAttrs.hostPath}:${containerPath}"
                     )
                     conDef.volumes);
 
@@ -528,62 +512,6 @@ in
       };
 
       systemd.services =
-        # Define mounts for each container
-        (
-          (reduceContainers (acc: servName: servDef: conName: conDef: (
-            acc // lib.attrsets.optionalAttrs
-              (builtins.hasAttr "volumes" conDef)
-              {
-                "podman-mount-${servName}-${conName}" = {
-                  serviceConfig = {
-                    Type = "oneshot";
-                    RemainAfterExit = true;
-                  };
-                  path = [ pkgs.bindfs ];
-                  script = lib.strings.concatLines (lib.attrsets.mapAttrsToList
-                    (containerPath: volDef:
-                      let
-                        volAttrs = mapVolumeAttrs servName conName containerPath volDef;
-                      in
-                      ''
-                        ${pkgs.umount}/bin/umount ${volAttrs.varDir} || true
-                        rm -rf ${volAttrs.varDir} || true
-                        mkdir ${volAttrs.varDir}
-                        ${pkgs.util-linux}/bin/mount --bind ${volAttrs.hostDir} ${volAttrs.varDir}
-                      ''
-                    )
-                    conDef.volumes);
-                  postStop = lib.strings.concatLines (lib.attrsets.mapAttrsToList
-                    (containerPath: volDef:
-                      let
-                        volAttrs = mapVolumeAttrs servName conName containerPath volDef;
-                      in
-                      ''
-                        ${pkgs.umount}/bin/umount ${volAttrs.varDir} || true
-                        rm -rf ${volAttrs.varDir} || true
-                      ''
-                    )
-                    conDef.volumes);
-                  after = [
-                    "podman-network-${servName}.service"
-                    "systemd-tmpfiles-setup.service"
-                  ];
-                  requires = [
-                    "podman-network-${servName}.service"
-                    "systemd-tmpfiles-setup.service"
-                  ];
-                  partOf = [
-                    "podman-compose-${servName}-root.target"
-                  ];
-                  wantedBy = [
-                    "podman-compose-${servName}-root.target"
-                  ];
-                };
-              }
-          )
-          ))
-            { }
-            enabledServices) //
         # Define secrets for each container
         (
           (reduceContainers (acc: servName: servDef: conName: conDef: (
@@ -653,10 +581,6 @@ in
                 after = [
                   "podman-network-${servName}.service"
                 ] ++ lib.lists.optionals
-                  (builtins.hasAttr "volumes" conDef &&
-                  (builtins.length (lib.attrsets.attrValues conDef.volumes)) > 0)
-                  [ "podman-mount-${servName}-${conName}.service" ]
-                ++ lib.lists.optionals
                   (builtins.hasAttr "secrets" conDef)
                   [ "podman-secrets-${servName}-${conName}.service" ];
                 requires = [
